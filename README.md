@@ -7,6 +7,12 @@ Build a clean, beautifully formatted resume in real time. Fill in your details o
 
 ---
 
+## 📸 Preview
+
+![ResumeBuilder Landing Page](public/landing-preview.png)
+
+---
+
 ## ✨ Features
 
 - **Dynamic Multi-Screen Architecture:**
