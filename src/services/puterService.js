@@ -1,19 +1,44 @@
 import { BASE_HONESTY_INSTRUCTION } from './geminiService'
 
+// Tracks the specific Firebase user UID that has completed Puter sign-in in this session
+let activePuterSessionUid = null
+
 /**
- * Ensure Puter script is loaded and user is authenticated
+ * Check if the active signed-in user has connected Puter in this app session
+ * @param {string|null} uid 
+ * @returns {boolean}
+ */
+export function isPuterConnectedForUser(uid) {
+  const userKey = uid || 'guest'
+  return activePuterSessionUid === userKey
+}
+
+/**
+ * Clear the in-memory Puter connection session on sign out
+ */
+export function clearPuterSession() {
+  console.log('[Puter.js]: Cleared app-level Puter connection session.')
+  activePuterSessionUid = null
+}
+
+/**
+ * Ensure Puter script is loaded and user has explicitly authenticated for their own account
+ * @param {string|null} uid 
  * @returns {Promise<boolean>}
  */
-export async function ensurePuterAuth() {
+export async function ensurePuterAuth(uid = null) {
   if (typeof window === 'undefined' || !window.puter) {
     throw new Error('Puter.js script is not loaded. Please refresh the page.')
   }
 
-  // Check if already signed in
-  const signedIn = window.puter.auth.isSignedIn()
-  if (!signedIn) {
-    console.log('[Puter.js]: Prompting user sign-in popup...')
+  const userKey = uid || 'guest'
+
+  // If this specific signed-in user has not completed Puter sign-in in this session, prompt them
+  if (activePuterSessionUid !== userKey) {
+    console.log(`[Puter.js]: Prompting Puter sign-in for account (${userKey})...`)
     await window.puter.auth.signIn()
+    activePuterSessionUid = userKey
+    console.log(`[Puter.js]: Account (${userKey}) successfully connected to Puter.`)
   }
 
   return true
@@ -22,12 +47,13 @@ export async function ensurePuterAuth() {
 /**
  * Call Puter.js AI chat endpoint
  * @param {string} prompt 
+ * @param {string|null} uid
  * @returns {Promise<string>}
  */
-export async function callPuterAI(prompt) {
-  await ensurePuterAuth()
+export async function callPuterAI(prompt, uid = null) {
+  await ensurePuterAuth(uid)
 
-  console.log('[Puter.js AI]: Routing request via Puter account...')
+  console.log(`[Puter.js AI]: Routing request via Puter account for (${uid || 'guest'})...`)
   const response = await window.puter.ai.chat(prompt)
 
   // Log raw Puter response as required
@@ -50,9 +76,10 @@ export async function callPuterAI(prompt) {
 /**
  * Polish Personal Info / Summary using Puter
  * @param {string} currentSummary 
+ * @param {string|null} uid
  * @returns {Promise<string>}
  */
-export async function polishSummaryWithPuter(currentSummary) {
+export async function polishSummaryWithPuter(currentSummary, uid = null) {
   if (!currentSummary || !currentSummary.trim()) {
     throw new Error('Please enter some text in the summary before polishing.')
   }
@@ -66,7 +93,7 @@ Original Summary:
 
 Polished Summary:`
 
-  return await callPuterAI(prompt)
+  return await callPuterAI(prompt, uid)
 }
 
 /**
@@ -74,9 +101,10 @@ Polished Summary:`
  * @param {string} description 
  * @param {string} role 
  * @param {string} company 
+ * @param {string|null} uid
  * @returns {Promise<string>}
  */
-export async function polishExperienceWithPuter(description, role = '', company = '') {
+export async function polishExperienceWithPuter(description, role = '', company = '', uid = null) {
   if (!description || !description.trim()) {
     throw new Error('Please enter job description details before polishing.')
   }
@@ -91,15 +119,16 @@ ${description}
 
 Polished Bullet Points:`
 
-  return await callPuterAI(prompt)
+  return await callPuterAI(prompt, uid)
 }
 
 /**
  * Polish Skills list using Puter
  * @param {string[]} skillsArray 
+ * @param {string|null} uid
  * @returns {Promise<string[]>}
  */
-export async function polishSkillsWithPuter(skillsArray) {
+export async function polishSkillsWithPuter(skillsArray, uid = null) {
   if (!skillsArray || skillsArray.length === 0) {
     throw new Error('Please add some skills before polishing.')
   }
@@ -115,7 +144,7 @@ ${skillsArray.join(', ')}
 
 Standardized Skills:`
 
-  const result = await callPuterAI(prompt)
+  const result = await callPuterAI(prompt, uid)
   return result
     .split(/[,,\n]/)
     .map((s) => s.replace(/^[-•*]\s*/, '').trim())

@@ -21,7 +21,31 @@ function formatDate(dateStr) {
 }
 
 export default function ResumePreview({ resumeData, onExportPDF, isExporting }) {
-  const { personalInfo, experience, education, skills, aiProvider = 'default' } = resumeData
+  const { personalInfo = {}, experience = [], education = [], skills = [], aiProvider = 'default' } = resumeData || {}
+
+  // Filter out ghost / empty entries
+  const validExperience = (experience || []).filter(
+    (exp) => exp.role?.trim() || exp.company?.trim() || exp.description?.trim()
+  )
+
+  const validEducation = (education || []).filter(
+    (edu) => edu.degree?.trim() || edu.institution?.trim()
+  )
+
+  const validSkills = (skills || []).filter((s) => s && s.trim())
+
+  const hasContactInfo =
+    personalInfo.email?.trim() ||
+    personalInfo.phone?.trim() ||
+    personalInfo.location?.trim()
+
+  const hasAnyContent =
+    personalInfo.name?.trim() ||
+    hasContactInfo ||
+    personalInfo.summary?.trim() ||
+    validExperience.length > 0 ||
+    validEducation.length > 0 ||
+    validSkills.length > 0
 
   return (
     <div className="w-full flex flex-col items-center py-6 px-4 md:px-6">
@@ -30,7 +54,7 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
         <div className="flex items-center gap-2 bg-white border border-[#E2E8F0] px-3 py-1.5 rounded-full shadow-2xs">
           <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse"></span>
           <span className="text-xs font-semibold text-[#0F172A]">
-            Polishing with: <span className="text-[#2563EB] font-bold">{aiProvider === 'default' ? 'Default (Gemini)' : 'Puter'}</span>
+            Polishing with: <span className="text-[#2563EB] font-bold">{aiProvider === 'default' ? 'Default (Gemini)' : 'Puter.js'}</span>
           </span>
         </div>
 
@@ -38,7 +62,7 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
           <button
             type="button"
             onClick={onExportPDF}
-            disabled={isExporting}
+            disabled={isExporting || !hasAnyContent}
             className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
           >
             <DownloadIcon className={`w-3.5 h-3.5 ${isExporting ? 'animate-bounce' : ''}`} />
@@ -58,38 +82,44 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
         style={{ fontFamily: 'var(--font-serif, "Source Serif 4", Georgia, serif)' }}
       >
         {/* Document Header */}
-        <header className="pdf-avoid-break border-b-2 border-[#0F172A] pb-5 mb-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A] mb-2 font-serif">
-            {personalInfo.name || 'Your Full Name'}
-          </h1>
+        {(personalInfo.name?.trim() || hasContactInfo) ? (
+          <header className="pdf-avoid-break border-b-2 border-[#0F172A] pb-5 mb-6 text-center">
+            {personalInfo.name?.trim() && (
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A] mb-2 font-serif">
+                {personalInfo.name.trim()}
+              </h1>
+            )}
 
-          <div
-            className="flex flex-wrap justify-center items-center gap-x-5 gap-y-1 text-xs text-[#475569]"
-            style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
-          >
-            {personalInfo.email && (
-              <span className="inline-flex items-center gap-1.5">
-                <MailIcon className="w-3.5 h-3.5 text-[#0F766E]" />
-                {personalInfo.email}
-              </span>
+            {hasContactInfo && (
+              <div
+                className="flex flex-wrap justify-center items-center gap-x-5 gap-y-1 text-xs text-[#475569]"
+                style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
+              >
+                {personalInfo.email?.trim() && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MailIcon className="w-3.5 h-3.5 text-[#0F766E]" />
+                    {personalInfo.email.trim()}
+                  </span>
+                )}
+                {personalInfo.phone?.trim() && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <PhoneIcon className="w-3.5 h-3.5 text-[#0F766E]" />
+                    {personalInfo.phone.trim()}
+                  </span>
+                )}
+                {personalInfo.location?.trim() && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPinIcon className="w-3.5 h-3.5 text-[#0F766E]" />
+                    {personalInfo.location.trim()}
+                  </span>
+                )}
+              </div>
             )}
-            {personalInfo.phone && (
-              <span className="inline-flex items-center gap-1.5">
-                <PhoneIcon className="w-3.5 h-3.5 text-[#0F766E]" />
-                {personalInfo.phone}
-              </span>
-            )}
-            {personalInfo.location && (
-              <span className="inline-flex items-center gap-1.5">
-                <MapPinIcon className="w-3.5 h-3.5 text-[#0F766E]" />
-                {personalInfo.location}
-              </span>
-            )}
-          </div>
-        </header>
+          </header>
+        ) : null}
 
         {/* Professional Summary */}
-        {personalInfo.summary && (
+        {personalInfo.summary?.trim() && (
           <section className="resume-section pdf-avoid-break mb-6">
             <h2
               className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-2.5"
@@ -98,13 +128,13 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
               Professional Summary
             </h2>
             <p className="text-sm leading-relaxed text-[#1E293B] text-justify font-normal">
-              {personalInfo.summary}
+              {personalInfo.summary.trim()}
             </p>
           </section>
         )}
 
         {/* Work Experience */}
-        {experience && experience.length > 0 && (
+        {validExperience.length > 0 && (
           <section className="resume-section mb-6">
             <h2
               className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-3.5 pdf-avoid-break"
@@ -114,7 +144,7 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
             </h2>
 
             <div className="space-y-4">
-              {experience.map((exp, index) => {
+              {validExperience.map((exp, index) => {
                 const startDateFormatted = formatDate(exp.startDate)
                 const endDateFormatted = exp.current ? 'Present' : formatDate(exp.endDate)
                 const dateString = [startDateFormatted, endDateFormatted].filter(Boolean).join(' – ')
@@ -130,9 +160,11 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
                 return (
                   <div key={exp.id || index} className="resume-entry pdf-avoid-break space-y-1">
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
-                      <h3 className="text-sm sm:text-[15px] font-bold text-[#0F172A]">
-                        {exp.role || 'Job Title'}
-                      </h3>
+                      {exp.role?.trim() && (
+                        <h3 className="text-sm sm:text-[15px] font-bold text-[#0F172A]">
+                          {exp.role.trim()}
+                        </h3>
+                      )}
                       {dateString && (
                         <span
                           className="text-xs text-[#64748B] font-medium sm:text-right"
@@ -143,12 +175,12 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
                       )}
                     </div>
 
-                    {exp.company && (
+                    {exp.company?.trim() && (
                       <div
                         className="text-xs font-semibold text-[#0F766E]"
                         style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
                       >
-                        {exp.company}
+                        {exp.company.trim()}
                       </div>
                     )}
 
@@ -159,9 +191,9 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
                         ))}
                       </ul>
                     ) : (
-                      exp.description && (
+                      exp.description?.trim() && (
                         <p className="text-xs sm:text-[13px] leading-relaxed text-[#334155] mt-1">
-                          {exp.description}
+                          {exp.description.trim()}
                         </p>
                       )
                     )}
@@ -173,7 +205,7 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
         )}
 
         {/* Education */}
-        {education && education.length > 0 && (
+        {validEducation.length > 0 && (
           <section className="resume-section mb-6">
             <h2
               className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-3 pdf-avoid-break"
@@ -183,7 +215,7 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
             </h2>
 
             <div className="space-y-3">
-              {education.map((edu, index) => {
+              {validEducation.map((edu, index) => {
                 const startDateFormatted = formatDate(edu.startDate)
                 const endDateFormatted = formatDate(edu.endDate)
                 const dateString = [startDateFormatted, endDateFormatted].filter(Boolean).join(' – ')
@@ -191,15 +223,19 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
                 return (
                   <div key={edu.id || index} className="resume-entry pdf-avoid-break flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-[#0F172A]">
-                        {edu.degree || 'Degree / Major'}
-                      </h3>
-                      <div
-                        className="text-xs text-[#64748B]"
-                        style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
-                      >
-                        {edu.institution || 'School / Institution'}
-                      </div>
+                      {edu.degree?.trim() && (
+                        <h3 className="text-sm font-bold text-[#0F172A]">
+                          {edu.degree.trim()}
+                        </h3>
+                      )}
+                      {edu.institution?.trim() && (
+                        <div
+                          className="text-xs text-[#64748B]"
+                          style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
+                        >
+                          {edu.institution.trim()}
+                        </div>
+                      )}
                     </div>
 
                     {dateString && (
@@ -218,7 +254,7 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
         )}
 
         {/* Skills */}
-        {skills && skills.length > 0 && (
+        {validSkills.length > 0 && (
           <section className="resume-section pdf-avoid-break pt-1">
             <h2
               className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-2.5"
@@ -231,16 +267,23 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
               className="flex flex-wrap gap-1.5 text-xs text-[#1E293B]"
               style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
             >
-              {skills.map((skill, index) => (
+              {validSkills.map((skill, index) => (
                 <span
                   key={index}
                   className="bg-[#F1F5F9] border border-[#E2E8F0] px-2.5 py-1 rounded text-xs font-medium"
                 >
-                  {skill}
+                  {skill.trim()}
                 </span>
               ))}
             </div>
           </section>
+        )}
+
+        {/* Empty placeholder canvas notice if nothing has been typed yet */}
+        {!hasAnyContent && (
+          <div className="py-24 text-center text-[#94A3B8] font-sans">
+            <p className="text-sm font-medium">Your resume preview will take shape live as you fill in the form.</p>
+          </div>
         )}
       </article>
     </div>

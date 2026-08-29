@@ -38,7 +38,8 @@ export async function exportResumeToPDF(elementOrId, candidateName = 'Resume') {
       orientation: 'portrait'
     },
     pagebreak: {
-      mode: ['css', 'legacy']
+      mode: ['avoid-all', 'css', 'legacy'],
+      avoid: ['.pdf-avoid-break', '.resume-entry', 'header', 'h2', 'h3']
     }
   }
 

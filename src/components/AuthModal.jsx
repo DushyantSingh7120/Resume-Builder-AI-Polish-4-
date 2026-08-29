@@ -5,7 +5,7 @@ import {
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { toast } from 'sonner'
-import { CloseIcon, SparklesIcon } from './Icons'
+import { CloseIcon, UserIcon } from './Icons'
 
 export default function AuthModal({ isOpen, onClose }) {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -64,7 +64,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
         <div className="mb-6">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F766E] bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100 mb-2">
-            <SparklesIcon className="w-3.5 h-3.5" />
+            <UserIcon className="w-3.5 h-3.5" />
             Resume Cloud Sync
           </div>
           <h2 className="text-xl font-bold text-[#0F172A]">

@@ -17,7 +17,7 @@ import {
 } from '../services/aiPolishService'
 import { ensurePuterAuth } from '../services/puterService'
 
-export default function FormEditor({ resumeData, setResumeData }) {
+export default function FormEditor({ resumeData, setResumeData, currentUser }) {
   const [newSkill, setNewSkill] = useState('')
   const [polishingSection, setPolishingSection] = useState(null) // null | 'summary' | 'skills' | `exp-${id}` | 'experience-all'
   const activeProvider = resumeData.aiProvider || 'default'
@@ -28,7 +28,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
 
     if (newProvider === 'puter') {
       try {
-        await ensurePuterAuth()
+        await ensurePuterAuth(currentUser?.uid)
         setResumeData((prev) => ({ ...prev, aiProvider: 'puter' }))
         toast.success('Connected to Puter! AI calls will run on your Puter account.')
       } catch (err) {
@@ -151,7 +151,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
 
     setPolishingSection('summary')
     try {
-      const polished = await polishSummary(resumeData.personalInfo.summary, activeProvider)
+      const polished = await polishSummary(resumeData.personalInfo.summary, activeProvider, currentUser?.uid)
       setResumeData((prev) => ({
         ...prev,
         personalInfo: {
@@ -182,7 +182,8 @@ export default function FormEditor({ resumeData, setResumeData }) {
         exp.description,
         exp.role,
         exp.company,
-        activeProvider
+        activeProvider,
+        currentUser?.uid
       )
       handleExperienceChange(exp.id, 'description', polished)
       toast.success(`Polished experience at ${exp.company || 'position'} with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
@@ -211,7 +212,8 @@ export default function FormEditor({ resumeData, setResumeData }) {
             exp.description,
             exp.role,
             exp.company,
-            activeProvider
+            activeProvider,
+            currentUser?.uid
           )
           return { ...exp, description: polished }
         })
@@ -238,7 +240,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
 
     setPolishingSection('skills')
     try {
-      const polished = await polishSkills(resumeData.skills, activeProvider)
+      const polished = await polishSkills(resumeData.skills, activeProvider, currentUser?.uid)
       setResumeData((prev) => ({
         ...prev,
         skills: polished

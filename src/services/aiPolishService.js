@@ -4,10 +4,10 @@ import * as puterService from './puterService'
 /**
  * Route summary polish through active provider
  */
-export async function polishSummary(currentSummary, provider = 'default') {
+export async function polishSummary(currentSummary, provider = 'default', uid = null) {
   if (provider === 'puter') {
     console.log('[AI Dispatcher]: Polishing with PUTER. Gemini API will NOT fire.')
-    return await puterService.polishSummaryWithPuter(currentSummary)
+    return await puterService.polishSummaryWithPuter(currentSummary, uid)
   }
   console.log('[AI Dispatcher]: Polishing with DEFAULT (Gemini).')
   return await geminiService.polishSummary(currentSummary)
@@ -16,10 +16,10 @@ export async function polishSummary(currentSummary, provider = 'default') {
 /**
  * Route experience polish through active provider
  */
-export async function polishExperienceDescription(description, role = '', company = '', provider = 'default') {
+export async function polishExperienceDescription(description, role = '', company = '', provider = 'default', uid = null) {
   if (provider === 'puter') {
     console.log('[AI Dispatcher]: Polishing with PUTER. Gemini API will NOT fire.')
-    return await puterService.polishExperienceWithPuter(description, role, company)
+    return await puterService.polishExperienceWithPuter(description, role, company, uid)
   }
   console.log('[AI Dispatcher]: Polishing with DEFAULT (Gemini).')
   return await geminiService.polishExperienceDescription(description, role, company)
@@ -28,10 +28,10 @@ export async function polishExperienceDescription(description, role = '', compan
 /**
  * Route skills polish through active provider
  */
-export async function polishSkills(skillsArray, provider = 'default') {
+export async function polishSkills(skillsArray, provider = 'default', uid = null) {
   if (provider === 'puter') {
     console.log('[AI Dispatcher]: Polishing with PUTER. Gemini API will NOT fire.')
-    return await puterService.polishSkillsWithPuter(skillsArray)
+    return await puterService.polishSkillsWithPuter(skillsArray, uid)
   }
   console.log('[AI Dispatcher]: Polishing with DEFAULT (Gemini).')
   return await geminiService.polishSkills(skillsArray)
