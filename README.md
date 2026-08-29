@@ -1,65 +1,88 @@
 # ResumeBuilder + AI Polish
 
-Build a clean, formatted resume by filling in standard form fields and watching your document take shape in real time. Whenever you're stuck on wording, click **Polish with AI** to instantly elevate your summaries and experience bullet points without inventing facts or breaking flow.
+Build a clean, beautifully formatted resume in real time. Fill in your details on the left, watch your document update instantly on the right, and use **Polish with AI** to rephrase summaries and bullet points with high-impact professional wording that never hallucinates facts.
 
-**Live Demo:** [https://resume-builder-ai-polish.vercel.app](https://resume-builder-ai-polish-4.vercel.app/)
+**Live Demo:** [https://resume-builder-ai-polish-4.vercel.app](https://resume-builder-ai-polish-4.vercel.app)  
+**Author:** [Dushyant Singh Bhati](https://github.com/DushyantSingh7120) • [LinkedIn](https://www.linkedin.com/in/dushyant-singh-764235332)
 
 ---
 
 ## ✨ Features
 
-- **Live Split-Screen Preview:** Real-time updates as you type — no manual generation or waiting.
+- **Dynamic Multi-Screen Architecture:**
+  - **Landing Page (`/`):** Clean product overview with live auth state awareness.
+  - **Dedicated Auth (`/login` & `/signup`):** One-click **Google Sign-In**, email/password registration, and self-serve **Password Reset**.
+  - **Email Verification (`/verify-email`):** Dedicated post-signup screen with spam/promotions guidance, resend link, and Puter bypass.
+  - **Protected Builder (`/app`):** Zero-flash route wrapper ensuring authenticated access to your private workspace.
+  - **Legal Pages (`/privacy` & `/terms`):** Transparent, plain-English data privacy and terms of service.
 - **Dual AI Polish Engines:**
-  - **Default (Gemini 3.6 Flash):** Free built-in AI polishing with server-side per-user rate limiting.
-  - **Puter.js (BYO Account):** Run unlimited polish calls using your personal Puter account quota.
-- **Repeatable Work & Education Entries:** Add, reorder, or delete experience entries with full reactivity.
-- **One-Click PDF Export:** Download a print-perfect PDF formatted identically to the on-screen preview.
-- **Per-User Cloud Sync:** Firebase Authentication with email verification and private Firestore resume storage.
-- **Responsive Layout:** Desktop two-column layout with mobile bottom-sheet preview drawer.
+  - **Default (Google Gemini Flash):** Free built-in AI polishing with server-side per-user rate limiting (unlocked via email verification).
+  - **Puter.js (BYO Account):** Client-side AI polish powered by your personal Puter.com account quota with zero verification requirement.
+- **Real-Time Split-Screen Workspace:** Live typographic formatting with instant reactivity as you type.
+- **One-Click PDF Export:** Client-side vector-accurate PDF generation formatted identically to the live on-screen preview.
+- **Per-User Cloud Sync:** Secure persistence in Google Cloud Firestore (`users/{uid}`) protected by strict per-user security rules.
+- **Responsive Layout:** Desktop split-pane view with mobile drawer preview.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React 19, Vite, Tailwind CSS v4
-- **AI Integration:** Google Gemini API (via serverless proxy) + Puter.js SDK
-- **Backend / BaaS:** Firebase Auth & Cloud Firestore
-- **Export & Feedback:** `html2pdf.js`, `sonner` (toasts), `vaul` (drawers)
-- **Deployment:** Vercel
+- **Frontend:** React 19, React Router v7 (`react-router-dom`), Vite, Tailwind CSS v4
+- **AI Integrations:** Google Gemini API (via serverless proxy) + Puter.js SDK
+- **Backend & Auth:** Firebase Authentication (Email/Password & Google OAuth) + Cloud Firestore
+- **Utilities & UI:** `html2pdf.js` (PDF export), `sonner` (rich toasts), `vaul` (drawers)
+- **Hosting & CI/CD:** Vercel
 
 ---
 
-## 🚀 Local Setup
+## 🚀 Local Development Setup
 
-### 1. Clone the repository
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/resume-builder-ai-polish.git
-cd resume-builder-ai-polish
+git clone https://github.com/DushyantSingh7120/Resume-Builder-AI-Polish-4-.git
+cd Resume-Builder-AI-Polish-4-
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. Configure environment variables
-Copy the example environment file:
+### 3. Configure Environment Variables
+Copy the template file:
 ```bash
 cp .env.example .env
 ```
-Fill in your credentials:
+
+Populate your `.env` file with your credentials:
 ```env
+# Server-side Gemini API (Used by /api/polish serverless proxy)
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-3.6-flash
-```
-*(Also ensure Firebase client credentials in `src/config/firebaseConfig.js` match your Firebase project).*
 
-### 4. Start local development server
+# Client-side Firebase Configuration (Vite environment variables)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_firebase_app_id
+```
+
+### 4. Start the Dev Server
 ```bash
 npm run dev
 ```
 
 Open `http://localhost:5173` in your browser.
+
+---
+
+## 🔒 Security & Privacy
+
+- **No Data Selling:** Your resume data is strictly your own and is never sold, tracked, or used for advertising.
+- **Firestore Isolation:** Firestore security rules ensure that users can only read and write their own document matching `request.auth.uid`.
+- **API Key Protection:** Server-side Gemini API keys are never exposed to the client; all Default AI Polish calls are verified and proxied through `/api/polish`.
 
 ---
 
