@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { toast } from 'sonner'
 import {
   SparklesIcon,
   UserIcon,
@@ -9,9 +10,15 @@ import {
   PlusIcon,
   TrashIcon
 } from './Icons'
+import {
+  polishSummary,
+  polishExperienceDescription,
+  polishSkills
+} from '../services/aiPolishService'
 
 export default function FormEditor({ resumeData, setResumeData }) {
   const [newSkill, setNewSkill] = useState('')
+  const [polishingSection, setPolishingSection] = useState(null) // null | 'summary' | 'skills' | `exp-${id}` | 'experience-all'
 
   // Personal Info change handler
   const handlePersonalInfoChange = (field, value) => {
@@ -92,7 +99,6 @@ export default function FormEditor({ resumeData, setResumeData }) {
     }))
   }
 
-
   // Skills handlers
   const handleAddSkill = (e) => {
     if (e.key === 'Enter' || e.type === 'click') {
@@ -115,6 +121,106 @@ export default function FormEditor({ resumeData, setResumeData }) {
     }))
   }
 
+  // AI Polish: Summary
+  const handlePolishSummary = async () => {
+    if (!resumeData.personalInfo.summary?.trim()) {
+      toast.error('Please enter a professional summary to polish.')
+      return
+    }
+
+    setPolishingSection('summary')
+    try {
+      const polished = await polishSummary(resumeData.personalInfo.summary)
+      setResumeData((prev) => ({
+        ...prev,
+        personalInfo: {
+          ...prev.personalInfo,
+          summary: polished
+        }
+      }))
+      toast.success('Professional summary polished!')
+    } catch (err) {
+      console.error('Polish summary error:', err)
+      toast.error(err.message || 'Failed to polish summary.')
+    } finally {
+      setPolishingSection(null)
+    }
+  }
+
+  // AI Polish: Specific Experience Entry
+  const handlePolishExperienceEntry = async (exp) => {
+    if (!exp.description?.trim()) {
+      toast.error('Please enter a description for this role before polishing.')
+      return
+    }
+
+    const sectionKey = `exp-${exp.id}`
+    setPolishingSection(sectionKey)
+    try {
+      const polished = await polishExperienceDescription(exp.description, exp.role, exp.company)
+      handleExperienceChange(exp.id, 'description', polished)
+      toast.success(`Polished experience at ${exp.company || 'position'}!`)
+    } catch (err) {
+      console.error('Polish experience error:', err)
+      toast.error(err.message || 'Failed to polish experience.')
+    } finally {
+      setPolishingSection(null)
+    }
+  }
+
+  // AI Polish: All Experience Entries
+  const handlePolishAllExperience = async () => {
+    const entriesWithDesc = resumeData.experience.filter((e) => e.description?.trim())
+    if (entriesWithDesc.length === 0) {
+      toast.error('Please enter job descriptions to polish.')
+      return
+    }
+
+    setPolishingSection('experience-all')
+    try {
+      const updatedExperience = await Promise.all(
+        resumeData.experience.map(async (exp) => {
+          if (!exp.description?.trim()) return exp
+          const polished = await polishExperienceDescription(exp.description, exp.role, exp.company)
+          return { ...exp, description: polished }
+        })
+      )
+      setResumeData((prev) => ({
+        ...prev,
+        experience: updatedExperience
+      }))
+      toast.success('All work experience entries polished!')
+    } catch (err) {
+      console.error('Polish all experience error:', err)
+      toast.error(err.message || 'Failed to polish work experience.')
+    } finally {
+      setPolishingSection(null)
+    }
+  }
+
+  // AI Polish: Skills
+  const handlePolishSkills = async () => {
+    if (!resumeData.skills || resumeData.skills.length === 0) {
+      toast.error('Please add some skills to polish.')
+      return
+    }
+
+    setPolishingSection('skills')
+    try {
+      const polished = await polishSkills(resumeData.skills)
+      setResumeData((prev) => ({
+        ...prev,
+        skills: polished
+      }))
+      toast.success('Skills organized and standardized!')
+    } catch (err) {
+      console.error('Polish skills error:', err)
+      toast.error(err.message || 'Failed to polish skills.')
+    } finally {
+      setPolishingSection(null)
+    }
+  }
+
   return (
     <div className="w-full max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-8">
       {/* Section 1: Personal Information */}
@@ -126,10 +232,12 @@ export default function FormEditor({ resumeData, setResumeData }) {
           </div>
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors"
+            onClick={handlePolishSummary}
+            disabled={polishingSection === 'summary'}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
-            <SparklesIcon className="w-3.5 h-3.5" />
-            Polish with AI
+            <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'summary' ? 'animate-spin text-[#2563EB]' : ''}`} />
+            {polishingSection === 'summary' ? 'Polishing...' : 'Polish Summary with AI'}
           </button>
         </div>
 
@@ -180,7 +288,10 @@ export default function FormEditor({ resumeData, setResumeData }) {
         </div>
 
         <div className="space-y-1.5 pt-1">
-          <label className="block text-xs font-medium text-[#64748B]">Professional Summary</label>
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-medium text-[#64748B]">Professional Summary</label>
+            <span className="text-[11px] text-[#94A3B8]">Click button above to polish</span>
+          </div>
           <textarea
             rows={3}
             value={resumeData.personalInfo.summary}
@@ -200,10 +311,12 @@ export default function FormEditor({ resumeData, setResumeData }) {
           </div>
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors"
+            onClick={handlePolishAllExperience}
+            disabled={polishingSection === 'experience-all'}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
-            <SparklesIcon className="w-3.5 h-3.5" />
-            Polish with AI
+            <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'experience-all' ? 'animate-spin text-[#2563EB]' : ''}`} />
+            {polishingSection === 'experience-all' ? 'Polishing All...' : 'Polish All with AI'}
           </button>
         </div>
 
@@ -215,15 +328,26 @@ export default function FormEditor({ resumeData, setResumeData }) {
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-[#64748B]">Position #{idx + 1}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveExperience(exp.id)}
-                  className="text-[#94A3B8] hover:text-red-600 p-1 rounded-md transition-colors"
-                  title="Remove this position"
-                  aria-label="Remove work experience entry"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handlePolishExperienceEntry(exp)}
+                    disabled={polishingSection === `exp-${exp.id}`}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] hover:text-blue-800 bg-white border border-blue-200 hover:bg-blue-50 px-2 py-0.5 rounded transition-colors"
+                  >
+                    <SparklesIcon className={`w-3 h-3 ${polishingSection === `exp-${exp.id}` ? 'animate-spin text-[#2563EB]' : ''}`} />
+                    {polishingSection === `exp-${exp.id}` ? 'Polishing...' : 'Polish'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveExperience(exp.id)}
+                    className="text-[#94A3B8] hover:text-red-600 p-1 rounded-md transition-colors"
+                    title="Remove this position"
+                    aria-label="Remove work experience entry"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -320,13 +444,6 @@ export default function FormEditor({ resumeData, setResumeData }) {
             <AcademicCapIcon className="w-5 h-5 text-[#0F766E]" />
             <h2 className="font-sans font-semibold text-base md:text-lg">Education</h2>
           </div>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors"
-          >
-            <SparklesIcon className="w-3.5 h-3.5" />
-            Polish with AI
-          </button>
         </div>
 
         <div className="space-y-4">
@@ -416,10 +533,12 @@ export default function FormEditor({ resumeData, setResumeData }) {
           </div>
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors"
+            onClick={handlePolishSkills}
+            disabled={polishingSection === 'skills'}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
-            <SparklesIcon className="w-3.5 h-3.5" />
-            Polish with AI
+            <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'skills' ? 'animate-spin text-[#2563EB]' : ''}`} />
+            {polishingSection === 'skills' ? 'Polishing...' : 'Polish Skills with AI'}
           </button>
         </div>
 
