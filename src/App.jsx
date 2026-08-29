@@ -89,7 +89,11 @@ export default function App() {
           path="/signup"
           element={
             !isAuthLoading && currentUser ? (
-              <Navigate to="/" replace />
+              currentUser.emailVerified ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Navigate to="/verify-email" replace />
+              )
             ) : (
               <AuthPage isSignUp={true} />
             )

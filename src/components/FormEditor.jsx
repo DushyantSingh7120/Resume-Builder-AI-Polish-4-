@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { toast } from 'sonner'
+import { sendEmailVerification } from 'firebase/auth'
+import { auth } from '../config/firebase'
 import {
   SparklesIcon,
   UserIcon,
@@ -20,10 +22,33 @@ import { ensurePuterAuth } from '../services/puterService'
 export default function FormEditor({ resumeData, setResumeData, currentUser }) {
   const [newSkill, setNewSkill] = useState('')
   const [polishingSection, setPolishingSection] = useState(null) // null | 'summary' | 'skills' | `exp-${id}` | 'experience-all'
+  const [isSendingVerification, setIsSendingVerification] = useState(false)
   const activeProvider = resumeData.aiProvider || 'default'
 
   // Gate Default (Gemini) provider specifically for unverified users
   const isDefaultGated = activeProvider === 'default' && (!currentUser || !currentUser.emailVerified)
+
+  // Resend verification email handler
+  const handleResendVerification = async () => {
+    if (!auth.currentUser) {
+      toast.error('Session expired. Please sign in again.')
+      return
+    }
+    setIsSendingVerification(true)
+    try {
+      await sendEmailVerification(auth.currentUser)
+      toast.success(`Verification link sent to ${auth.currentUser.email}! Check your spam/promotions folder.`)
+    } catch (err) {
+      console.error('Error sending verification email:', err)
+      if (err.code === 'auth/too-many-requests') {
+        toast.error('Too many requests. Please wait a moment before trying again.')
+      } else {
+        toast.error('Could not send verification email. Please try again.')
+      }
+    } finally {
+      setIsSendingVerification(false)
+    }
+  }
 
   // Provider switch handler
   const handleProviderSwitch = async (newProvider) => {
@@ -276,7 +301,15 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
           </p>
           {isDefaultGated && (
             <p className="text-[11px] text-amber-700 font-medium mt-1">
-              Verify your email to use the free AI polish, or switch to Puter.js
+              Verify your email to use the free AI polish, or switch to Puter.js.{' '}
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isSendingVerification}
+                className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+              >
+                {isSendingVerification ? 'Sending link...' : 'Resend verification email'}
+              </button>
             </p>
           )}
         </div>
@@ -328,7 +361,15 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
             </button>
             {isDefaultGated && (
               <span className="text-[10px] text-amber-700 font-medium">
-                Verify your email to use the free AI polish, or switch to Puter.js
+                Verify your email to use the free AI polish, or switch to Puter.js.{' '}
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isSendingVerification}
+                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  {isSendingVerification ? 'Sending...' : 'Resend verification email'}
+                </button>
               </span>
             )}
           </div>
@@ -417,7 +458,15 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
             </button>
             {isDefaultGated && (
               <span className="text-[10px] text-amber-700 font-medium">
-                Verify your email to use the free AI polish, or switch to Puter.js
+                Verify your email to use the free AI polish, or switch to Puter.js.{' '}
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isSendingVerification}
+                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  {isSendingVerification ? 'Sending...' : 'Resend verification email'}
+                </button>
               </span>
             )}
           </div>
@@ -648,7 +697,15 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
             </button>
             {isDefaultGated && (
               <span className="text-[10px] text-amber-700 font-medium">
-                Verify your email to use the free AI polish, or switch to Puter.js
+                Verify your email to use the free AI polish, or switch to Puter.js.{' '}
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isSendingVerification}
+                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  {isSendingVerification ? 'Sending...' : 'Resend verification email'}
+                </button>
               </span>
             )}
           </div>
