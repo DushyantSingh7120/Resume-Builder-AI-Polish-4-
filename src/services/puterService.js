@@ -103,7 +103,7 @@ export async function callPuterAI(prompt, uid = null) {
       errMsg.toLowerCase().includes('429') ||
       errMsg.toLowerCase().includes('insufficient')
     ) {
-      throw new Error('Your Puter AI usage limit was reached — try again later or switch to Default')
+      throw new Error('Your Puter AI usage limit was reached — try again later or switch to Default', { cause: err })
     }
     throw err
   }

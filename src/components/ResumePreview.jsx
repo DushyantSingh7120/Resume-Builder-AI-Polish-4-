@@ -1,6 +1,4 @@
-import React from 'react'
 import {
-  SparklesIcon,
   MailIcon,
   PhoneIcon,
   MapPinIcon,
