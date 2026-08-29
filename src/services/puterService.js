@@ -54,23 +54,67 @@ export async function callPuterAI(prompt, uid = null) {
   await ensurePuterAuth(uid)
 
   console.log(`[Puter.js AI]: Routing request via Puter account for (${uid || 'guest'})...`)
-  const response = await window.puter.ai.chat(prompt)
+  
+  try {
+    const response = await window.puter.ai.chat(prompt, { stream: false })
 
-  // Log raw Puter response as required
-  console.log('[Puter.js Raw Response]:', response)
+    // Log raw Puter response as required
+    console.log('[Puter.js Raw Response]:', response)
 
-  let text = ''
-  if (typeof response === 'string') {
-    text = response
-  } else if (response?.message?.content) {
-    text = response.message.content
-  } else if (response?.text) {
-    text = response.text
-  } else {
-    text = String(response)
+    if (!response) {
+      throw new Error('No response returned from Puter AI.')
+    }
+
+    if (response?.error) {
+      const errorMsg = typeof response.error === 'string' ? response.error : (response.error.message || JSON.stringify(response.error))
+      if (
+        errorMsg.toLowerCase().includes('usage') ||
+        errorMsg.toLowerCase().includes('limit') ||
+        errorMsg.toLowerCase().includes('quota') ||
+        errorMsg.toLowerCase().includes('allowance') ||
+        errorMsg.toLowerCase().includes('delegate') ||
+        errorMsg.toLowerCase().includes('400') ||
+        errorMsg.toLowerCase().includes('429')
+      ) {
+        throw new Error('Your Puter AI usage limit was reached — try again later or switch to Default')
+      }
+      throw new Error(errorMsg)
+    }
+
+    let text = ''
+    if (typeof response === 'string') {
+      text = response
+    } else if (response?.message?.content) {
+      text = response.message.content
+    } else if (response?.text) {
+      text = response.text
+    } else {
+      text = String(response)
+    }
+
+    if (!text || !text.trim()) {
+      throw new Error('Empty response received from Puter AI.')
+    }
+
+    return text.trim()
+  } catch (err) {
+    console.error('[Puter.js AI Error]:', err)
+    const errMsg = err?.message || String(err)
+    if (
+      errMsg.toLowerCase().includes('usage') ||
+      errMsg.toLowerCase().includes('limit') ||
+      errMsg.toLowerCase().includes('quota') ||
+      errMsg.toLowerCase().includes('allowance') ||
+      errMsg.toLowerCase().includes('rate') ||
+      errMsg.toLowerCase().includes('delegate') ||
+      errMsg.toLowerCase().includes('400') ||
+      errMsg.toLowerCase().includes('429') ||
+      errMsg.toLowerCase().includes('insufficient')
+    ) {
+      throw new Error('Your Puter AI usage limit was reached — try again later or switch to Default')
+    }
+    throw err
   }
-
-  return text.trim()
 }
 
 /**

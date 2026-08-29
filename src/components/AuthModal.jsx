@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import {
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  sendEmailVerification
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { toast } from 'sonner'
@@ -23,8 +24,14 @@ export default function AuthModal({ isOpen, onClose }) {
 
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password)
-        toast.success('Account created successfully!')
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        try {
+          await sendEmailVerification(userCredential.user)
+          toast.success(`Account created! Verification email sent to ${email} (check spam/promotions if not in inbox).`)
+        } catch (verifyErr) {
+          console.warn('sendEmailVerification non-fatal notice:', verifyErr)
+          toast.success('Account created successfully!')
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password)
         toast.success('Signed in successfully!')

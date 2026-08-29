@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signOut, sendEmailVerification } from 'firebase/auth'
 import { toast, Toaster } from 'sonner'
 import { auth } from './config/firebase'
 import {
@@ -16,6 +16,7 @@ import FormEditor from './components/FormEditor'
 import ResumePreview from './components/ResumePreview'
 import ResumeSkeleton from './components/ResumeSkeleton'
 import AuthModal from './components/AuthModal'
+import { CloseIcon, MailIcon } from './components/Icons'
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null)
@@ -26,6 +27,8 @@ export default function App() {
   const [isSaving, setIsSaving] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [lastSavedTime, setLastSavedTime] = useState(null)
+  const [isEmailBannerDismissed, setIsEmailBannerDismissed] = useState(false)
+  const [isSendingVerification, setIsSendingVerification] = useState(false)
 
   // Firebase Auth State Listener
   useEffect(() => {
@@ -61,6 +64,47 @@ export default function App() {
 
     return () => unsubscribe()
   }, [])
+
+  // Automatic Auth State Refresh when user verifies email in another tab
+  useEffect(() => {
+    if (!currentUser || currentUser.emailVerified) return
+
+    let isChecking = false
+    const checkVerification = async () => {
+      if (isChecking || !auth.currentUser) return
+      isChecking = true
+      try {
+        await auth.currentUser.reload()
+        if (auth.currentUser.emailVerified) {
+          const fresh = auth.currentUser
+          const userClone = Object.assign(Object.create(Object.getPrototypeOf(fresh)), fresh)
+          userClone.getIdToken = (...args) => fresh.getIdToken(...args)
+          userClone.reload = (...args) => fresh.reload(...args)
+          setCurrentUser(userClone)
+          toast.success('Email verified! Free Default AI Polish is now unlocked.')
+        }
+      } catch (err) {
+        console.warn('[Auth Reload]:', err)
+      } finally {
+        isChecking = false
+      }
+    }
+
+    const handleFocus = () => checkVerification()
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') checkVerification()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibility)
+    const interval = setInterval(checkVerification, 4000)
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      clearInterval(interval)
+    }
+  }, [currentUser])
 
   // Expose security testing helper on window for Phase 7
   useEffect(() => {
@@ -108,10 +152,30 @@ export default function App() {
       await signOut(auth)
       clearPuterSession()
       setResumeData(SAMPLE_RESUME)
+      setIsEmailBannerDismissed(false)
       toast.success('Signed out successfully.')
     } catch (error) {
       console.error('Sign out error:', error)
       toast.error('Failed to sign out.')
+    }
+  }
+
+  // Resend email verification handler
+  const handleResendVerification = async () => {
+    if (!currentUser) return
+    setIsSendingVerification(true)
+    try {
+      await sendEmailVerification(currentUser)
+      toast.success(`Verification email sent to ${currentUser.email}!`)
+    } catch (err) {
+      console.error('Error sending verification email:', err)
+      if (err.code === 'auth/too-many-requests') {
+        toast.error('Too many requests. Please wait a moment before trying again.')
+      } else {
+        toast.error('Could not send verification email. Please try again later.')
+      }
+    } finally {
+      setIsSendingVerification(false)
     }
   }
 
@@ -130,6 +194,35 @@ export default function App() {
         onExportPDF={handleExportPDF}
         isExporting={isExporting}
       />
+
+      {/* Non-blocking Email Verification Banner */}
+      {currentUser && !currentUser.emailVerified && !isEmailBannerDismissed && (
+        <div className="bg-amber-50/90 border-b border-amber-200 px-4 md:px-8 py-2 text-xs text-amber-900 flex items-center justify-between gap-3 shrink-0 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 flex-wrap">
+            <MailIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+            <span>
+              Please verify your email address (<strong>{currentUser.email}</strong>). Check your spam or promotions folder if you don't see the email.
+            </span>
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={isSendingVerification}
+              className="underline font-semibold text-amber-900 hover:text-amber-950 disabled:opacity-50 ml-1 cursor-pointer"
+            >
+              {isSendingVerification ? 'Sending link...' : 'Resend verification email'}
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsEmailBannerDismissed(true)}
+            className="text-amber-600 hover:text-amber-950 p-1 rounded transition-colors cursor-pointer shrink-0"
+            title="Dismiss banner"
+            aria-label="Dismiss verification banner"
+          >
+            <CloseIcon className="w-3 h-3" />
+          </button>
+        </div>
+      )}
 
       {/* Main Content Workspace */}
       <main className="flex-1 flex overflow-hidden">

@@ -10,7 +10,7 @@ export async function polishSummary(currentSummary, provider = 'default', uid = 
     return await puterService.polishSummaryWithPuter(currentSummary, uid)
   }
   console.log('[AI Dispatcher]: Polishing with DEFAULT (Gemini).')
-  return await geminiService.polishSummary(currentSummary)
+  return await geminiService.polishSummary(currentSummary, uid)
 }
 
 /**
@@ -22,7 +22,7 @@ export async function polishExperienceDescription(description, role = '', compan
     return await puterService.polishExperienceWithPuter(description, role, company, uid)
   }
   console.log('[AI Dispatcher]: Polishing with DEFAULT (Gemini).')
-  return await geminiService.polishExperienceDescription(description, role, company)
+  return await geminiService.polishExperienceDescription(description, role, company, uid)
 }
 
 /**
@@ -34,5 +34,5 @@ export async function polishSkills(skillsArray, provider = 'default', uid = null
     return await puterService.polishSkillsWithPuter(skillsArray, uid)
   }
   console.log('[AI Dispatcher]: Polishing with DEFAULT (Gemini).')
-  return await geminiService.polishSkills(skillsArray)
+  return await geminiService.polishSkills(skillsArray, uid)
 }

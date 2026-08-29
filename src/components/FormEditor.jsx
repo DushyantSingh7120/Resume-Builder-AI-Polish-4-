@@ -22,6 +22,9 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
   const [polishingSection, setPolishingSection] = useState(null) // null | 'summary' | 'skills' | `exp-${id}` | 'experience-all'
   const activeProvider = resumeData.aiProvider || 'default'
 
+  // Gate Default (Gemini) provider specifically for unverified users
+  const isDefaultGated = activeProvider === 'default' && (!currentUser || !currentUser.emailVerified)
+
   // Provider switch handler
   const handleProviderSwitch = async (newProvider) => {
     if (newProvider === activeProvider) return
@@ -271,6 +274,11 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
               ? 'Using your connected Puter account allowance.'
               : 'Using built-in Gemini 3.6 Flash engine.'}
           </p>
+          {isDefaultGated && (
+            <p className="text-[11px] text-amber-700 font-medium mt-1">
+              Verify your email to use the free AI polish, or switch to Puter.js
+            </p>
+          )}
         </div>
 
         {/* Toggle Switch */}
@@ -302,20 +310,28 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
 
       {/* Section 1: Personal Information */}
       <section className="bg-white border border-[#E2E8F0] rounded-xl p-5 md:p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E2E8F0] pb-3 gap-2">
           <div className="flex items-center gap-2 text-[#0F172A]">
             <UserIcon className="w-5 h-5 text-[#0F766E]" />
             <h2 className="font-sans font-semibold text-base md:text-lg">Personal Information</h2>
           </div>
-          <button
-            type="button"
-            onClick={handlePolishSummary}
-            disabled={polishingSection === 'summary'}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-          >
-            <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'summary' ? 'animate-spin text-[#2563EB]' : ''}`} />
-            {polishingSection === 'summary' ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
-          </button>
+          <div className="flex flex-col items-start sm:items-end gap-1">
+            <button
+              type="button"
+              onClick={handlePolishSummary}
+              disabled={isDefaultGated || polishingSection === 'summary'}
+              title={isDefaultGated ? "Verify your email to use the free AI polish, or switch to Puter.js" : undefined}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'summary' ? 'animate-spin text-[#2563EB]' : ''}`} />
+              {polishingSection === 'summary' ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
+            </button>
+            {isDefaultGated && (
+              <span className="text-[10px] text-amber-700 font-medium">
+                Verify your email to use the free AI polish, or switch to Puter.js
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -383,20 +399,28 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
 
       {/* Section 2: Work Experience */}
       <section className="bg-white border border-[#E2E8F0] rounded-xl p-5 md:p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E2E8F0] pb-3 gap-2">
           <div className="flex items-center gap-2 text-[#0F172A]">
             <BriefcaseIcon className="w-5 h-5 text-[#0F766E]" />
             <h2 className="font-sans font-semibold text-base md:text-lg">Work Experience</h2>
           </div>
-          <button
-            type="button"
-            onClick={handlePolishAllExperience}
-            disabled={polishingSection === 'experience-all'}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-          >
-            <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'experience-all' ? 'animate-spin text-[#2563EB]' : ''}`} />
-            {polishingSection === 'experience-all' ? 'Polishing All...' : `Polish All with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
-          </button>
+          <div className="flex flex-col items-start sm:items-end gap-1">
+            <button
+              type="button"
+              onClick={handlePolishAllExperience}
+              disabled={isDefaultGated || polishingSection === 'experience-all'}
+              title={isDefaultGated ? "Verify your email to use the free AI polish, or switch to Puter.js" : undefined}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'experience-all' ? 'animate-spin text-[#2563EB]' : ''}`} />
+              {polishingSection === 'experience-all' ? 'Polishing All...' : `Polish All with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
+            </button>
+            {isDefaultGated && (
+              <span className="text-[10px] text-amber-700 font-medium">
+                Verify your email to use the free AI polish, or switch to Puter.js
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -411,8 +435,9 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
                   <button
                     type="button"
                     onClick={() => handlePolishExperienceEntry(exp)}
-                    disabled={polishingSection === `exp-${exp.id}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:text-blue-800 bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer disabled:opacity-60"
+                    disabled={isDefaultGated || polishingSection === `exp-${exp.id}`}
+                    title={isDefaultGated ? "Verify your email to use the free AI polish, or switch to Puter.js" : undefined}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:text-blue-800 bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === `exp-${exp.id}` ? 'animate-spin text-[#2563EB]' : ''}`} />
                     {polishingSection === `exp-${exp.id}` ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
@@ -605,20 +630,28 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
 
       {/* Section 4: Skills */}
       <section className="bg-white border border-[#E2E8F0] rounded-xl p-5 md:p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E2E8F0] pb-3 gap-2">
           <div className="flex items-center gap-2 text-[#0F172A]">
             <WrenchIcon className="w-5 h-5 text-[#0F766E]" />
             <h2 className="font-sans font-semibold text-base md:text-lg">Skills & Tools</h2>
           </div>
-          <button
-            type="button"
-            onClick={handlePolishSkills}
-            disabled={polishingSection === 'skills'}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-          >
-            <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'skills' ? 'animate-spin text-[#2563EB]' : ''}`} />
-            {polishingSection === 'skills' ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
-          </button>
+          <div className="flex flex-col items-start sm:items-end gap-1">
+            <button
+              type="button"
+              onClick={handlePolishSkills}
+              disabled={isDefaultGated || polishingSection === 'skills'}
+              title={isDefaultGated ? "Verify your email to use the free AI polish, or switch to Puter.js" : undefined}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'skills' ? 'animate-spin text-[#2563EB]' : ''}`} />
+              {polishingSection === 'skills' ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
+            </button>
+            {isDefaultGated && (
+              <span className="text-[10px] text-amber-700 font-medium">
+                Verify your email to use the free AI polish, or switch to Puter.js
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="space-y-3">
