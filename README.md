@@ -2,7 +2,7 @@
 
 Build a clean, formatted resume by filling in standard form fields and watching your document take shape in real time. Whenever you're stuck on wording, click **Polish with AI** to instantly elevate your summaries and experience bullet points without inventing facts or breaking flow.
 
-**Live Demo:** [https://resume-builder-ai-polish.vercel.app](https://resume-builder-ai-polish-4.vercel.app/)
+**Live Demo:** [https://resume-builder-ai-polish.vercel.app](https://resume-builder-ai-polish-d.vercel.app/)
 
 ---
 
