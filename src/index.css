@@ -23,6 +23,17 @@
   --radius-chip: 9999px;
 }
 
+/* Global Overflow & Box-Sizing Protection */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* Custom scrollbars for clean editor experience */
 ::-webkit-scrollbar {
   width: 6px;

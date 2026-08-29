@@ -289,30 +289,30 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-6">
+    <div className="w-full max-w-2xl mx-auto py-6 px-3 sm:px-4 md:px-6 space-y-6 box-border overflow-hidden">
       {/* Signature Element: Provider Selector & Indicator */}
-      <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-3.5 sm:p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full box-border">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-bold text-[#0F172A]">AI Polish Engine:</span>
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
               <SparklesIcon className="w-3 h-3" />
               {activeProvider === 'puter' ? 'Puter.js (BYO)' : 'Default (Gemini)'}
             </span>
           </div>
-          <p className="text-[11px] text-[#64748B] mt-0.5">
+          <p className="text-[11px] text-[#64748B] mt-0.5 break-words">
             {activeProvider === 'puter'
               ? 'Using your connected Puter account allowance.'
               : 'Using built-in Gemini 3.6 Flash engine.'}
           </p>
           {isDefaultGated && (
-            <p className="text-[11px] text-amber-700 font-medium mt-1">
+            <p className="text-[11px] text-amber-700 font-medium mt-1 break-words">
               Verify your email to use the free AI polish, or switch to Puter.js.{' '}
               <button
                 type="button"
                 onClick={handleResendVerification}
                 disabled={isSendingVerification || resendCooldown > 0}
-                className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed inline break-words"
               >
                 {isSendingVerification ? 'Sending link...' : resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend verification email'}
               </button>
@@ -744,7 +744,7 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
               onChange={(e) => setNewSkill(e.target.value)}
               onKeyDown={handleAddSkill}
               placeholder="Type a skill and press Enter..."
-              className="flex-1 min-w-[140px] bg-transparent text-sm text-[#0F172A] placeholder-[#94A3B8] outline-none px-2 py-0.5"
+              className="flex-1 min-w-[80px] max-w-full bg-transparent text-sm text-[#0F172A] placeholder-[#94A3B8] outline-none px-2 py-0.5"
             />
           </div>
           <p className="text-[11px] text-[#64748B]">Tip: Press Enter or type a skill to add it to the resume.</p>

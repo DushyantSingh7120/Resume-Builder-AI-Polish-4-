@@ -149,7 +149,7 @@ export default function BuilderPage({ currentUser }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0F172A]">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-[#F8FAFC] text-[#0F172A]">
       <Header
         mobileView={mobileView}
         setMobileView={setMobileView}
@@ -165,10 +165,10 @@ export default function BuilderPage({ currentUser }) {
 
       {/* Optional First-Run Feature Discovery Callout */}
       {showFirstRunHint && (
-        <div className="bg-teal-50 border-b border-teal-200 px-4 md:px-8 py-2.5 text-xs text-[#0F766E] flex items-center justify-between gap-3 shrink-0 animate-in fade-in duration-200">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="bg-teal-50 border-b border-teal-200 px-4 md:px-8 py-2.5 text-xs text-[#0F766E] flex items-center justify-between gap-3 shrink-0 animate-in fade-in duration-200 w-full max-w-full overflow-hidden">
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
             <SparklesIcon className="w-4 h-4 text-[#0F766E] shrink-0" />
-            <span>
+            <span className="break-words">
               <strong>Welcome to ResumeBuilder!</strong> Fill in your details on the left to see live formatting. Use <strong>Polish with AI</strong> on any section to enhance your phrasing.
             </span>
           </div>
@@ -185,24 +185,24 @@ export default function BuilderPage({ currentUser }) {
       )}
 
       {/* Main Content Workspace */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex overflow-hidden w-full max-w-full">
         {isDataLoading ? (
           <ResumeSkeleton />
         ) : (
           <>
             {/* Left Column: Form Editor */}
             <div
-              className={`flex-1 overflow-y-auto border-r border-[#E2E8F0] ${
+              className={`flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 border-r border-[#E2E8F0] ${
                 mobileView === 'preview' ? 'hidden md:block' : 'block'
               }`}
             >
               {/* Quick status bar */}
               {currentUser && (
-                <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-6 py-2 flex items-center justify-between text-xs text-[#64748B]">
-                  <span>
+                <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-4 sm:px-6 py-2 flex items-center justify-between text-xs text-[#64748B] w-full max-w-full overflow-hidden">
+                  <span className="truncate mr-2">
                     Account: <strong className="text-[#0F172A]">{currentUser.email}</strong>
                   </span>
-                  <span>
+                  <span className="shrink-0 text-[11px]">
                     {lastSavedTime
                       ? `Last saved: ${lastSavedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       : 'Unsaved changes'}
@@ -218,7 +218,7 @@ export default function BuilderPage({ currentUser }) {
 
             {/* Right Column: Live Resume Preview */}
             <div
-              className={`flex-1 overflow-y-auto bg-[#F1F5F9]/60 ${
+              className={`flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 bg-[#F1F5F9]/60 ${
                 mobileView === 'editor' ? 'hidden md:block' : 'block'
               }`}
             >

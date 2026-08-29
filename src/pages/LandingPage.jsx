@@ -22,16 +22,16 @@ export default function LandingPage({ currentUser }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans">
       {/* Top Navigation */}
-      <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-8 h-16 shrink-0 flex items-center justify-between z-20">
-        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs">
+      <header className="bg-white border-b border-[#E2E8F0] px-3 sm:px-4 md:px-8 h-16 shrink-0 flex items-center justify-between z-20 w-full max-w-full">
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity min-w-0 shrink">
+          <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs shrink-0">
             <FileTextIcon className="w-4 h-4" />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-sans font-bold text-lg text-[#0F172A] tracking-tight">ResumeBuilder</span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full border border-blue-100">
+          <div className="flex items-baseline gap-1.5 sm:gap-2 truncate">
+            <span className="font-sans font-bold text-base sm:text-lg text-[#0F172A] tracking-tight">ResumeBuilder</span>
+            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
               <SparklesIcon className="w-3 h-3" />
               AI Polish
             </span>
@@ -40,8 +40,8 @@ export default function LandingPage({ currentUser }) {
 
         {/* Top-Right Nav Area */}
         {currentUser ? (
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col text-right">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="hidden md:flex flex-col text-right">
               <span className="text-xs font-semibold text-[#0F172A] truncate max-w-[150px]">
                 {currentUser.email}
               </span>
@@ -49,29 +49,30 @@ export default function LandingPage({ currentUser }) {
             </div>
             <Link
               to="/app"
-              className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shadow-xs"
+              className="inline-flex items-center gap-1 sm:gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors shadow-xs shrink-0"
             >
-              Resume Workspace →
+              <span className="hidden sm:inline">Resume Workspace →</span>
+              <span className="sm:hidden">Workspace →</span>
             </Link>
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-xs font-medium text-[#64748B] hover:text-red-600 px-2.5 py-1.5 rounded hover:bg-red-50 transition-colors cursor-pointer"
+              className="text-xs font-medium text-[#64748B] hover:text-red-600 px-2 py-1.5 rounded hover:bg-red-50 transition-colors cursor-pointer shrink-0"
             >
               Sign out
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               to="/login"
-              className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors shrink-0"
             >
               Log In
             </Link>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors shadow-xs shrink-0"
             >
               Get Started
             </Link>
@@ -80,7 +81,7 @@ export default function LandingPage({ currentUser }) {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col justify-center items-center px-4 py-12 md:py-20 text-center max-w-5xl mx-auto space-y-8">
+      <main className="flex-1 flex flex-col justify-center items-center px-4 py-8 sm:py-12 md:py-20 text-center max-w-5xl w-full mx-auto space-y-8 box-border">
         <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#0F766E] bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-100 shadow-2xs">
           <SparklesIcon className="w-3.5 h-3.5 text-[#0F766E]" />
           Instant Live Formatting + AI Polish

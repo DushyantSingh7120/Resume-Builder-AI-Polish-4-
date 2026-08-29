@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 
 export default function Footer({ className = '' }) {
   return (
-    <footer className={`border-t border-[#E2E8F0] bg-white py-5 px-4 text-xs text-[#64748B] shrink-0 ${className}`}>
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
+    <footer className={`border-t border-[#E2E8F0] bg-white py-5 px-3 sm:px-4 text-xs text-[#64748B] shrink-0 w-full max-w-full overflow-hidden ${className}`}>
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left w-full">
         {/* Copyright & Legal Links */}
         <div className="flex items-center flex-wrap justify-center md:justify-start gap-x-3 gap-y-1 text-[11px] text-[#94A3B8]">
           <span>© 2026 ResumeBuilder + AI Polish. Zero paywalls, privacy first.</span>
