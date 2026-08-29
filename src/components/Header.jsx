@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { SparklesIcon, DownloadIcon, EyeIcon, FileTextIcon, UserIcon } from './Icons'
 
 export default function Header({
@@ -14,7 +15,7 @@ export default function Header({
 }) {
   return (
     <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-8 h-16 shrink-0 flex items-center justify-between z-20">
-      <div className="flex items-center gap-3">
+      <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
         <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs">
           <FileTextIcon className="w-4 h-4" />
         </div>
@@ -25,7 +26,7 @@ export default function Header({
             AI Polish
           </span>
         </div>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-2.5 sm:gap-3">
         {/* Mobile View Toggle */}
