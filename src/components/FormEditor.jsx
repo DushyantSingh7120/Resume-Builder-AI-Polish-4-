@@ -17,7 +17,6 @@ import {
   polishExperienceDescription,
   polishSkills
 } from '../services/aiPolishService'
-import { ensurePuterAuth } from '../services/puterService'
 
 export default function FormEditor({ resumeData, setResumeData, currentUser }) {
   const [newSkill, setNewSkill] = useState('')
@@ -63,19 +62,13 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     }
   }
 
-  // Provider switch handler
-  const handleProviderSwitch = async (newProvider) => {
+  // Provider switch handler (UI state only; Puter sign-in is deferred until Polish click)
+  const handleProviderSwitch = (newProvider) => {
     if (newProvider === activeProvider) return
 
     if (newProvider === 'puter') {
-      try {
-        await ensurePuterAuth(currentUser?.uid)
-        setResumeData((prev) => ({ ...prev, aiProvider: 'puter' }))
-        toast.success('Connected to Puter! AI calls will run on your Puter account.')
-      } catch (err) {
-        console.error('Puter auth error:', err)
-        toast.error('Could not authenticate with Puter. Staying on Default.')
-      }
+      setResumeData((prev) => ({ ...prev, aiProvider: 'puter' }))
+      toast.info('Switched AI Provider to Puter.js.')
     } else {
       setResumeData((prev) => ({ ...prev, aiProvider: 'default' }))
       toast.info('Switched AI Provider to Default (Gemini).')

@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import { FileTextIcon, SparklesIcon, UserIcon } from '../components/Icons'
 import Footer from '../components/Footer'
 
-export default function AuthPage({ isSignUp = false }) {
+export default function AuthPage({ isSignUp = false, currentUser = null, isAuthLoading = false }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,6 +21,17 @@ export default function AuthPage({ isSignUp = false }) {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+
+  // Redirect away if already authenticated
+  React.useEffect(() => {
+    if (!isAuthLoading && currentUser) {
+      if (isSignUp && !currentUser.emailVerified) {
+        navigate('/verify-email', { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
+    }
+  }, [currentUser, isAuthLoading, isSignUp, navigate])
 
   // Handle Google Sign-in (Auto-verified, redirects to "/")
   const handleGoogleSignIn = async () => {

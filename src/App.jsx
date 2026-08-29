@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Toaster, toast } from 'sonner'
 import { auth } from './config/firebase'
@@ -77,34 +77,18 @@ export default function App() {
         {/* Dedicated Auth Screens */}
         <Route
           path="/login"
-          element={
-            !isAuthLoading && currentUser ? (
-              <Navigate to="/" replace />
-            ) : (
-              <AuthPage isSignUp={false} />
-            )
-          }
+          element={<AuthPage isSignUp={false} currentUser={currentUser} isAuthLoading={isAuthLoading} />}
         />
         <Route
           path="/signup"
-          element={
-            !isAuthLoading && currentUser ? (
-              currentUser.emailVerified ? (
-                <Navigate to="/" replace />
-              ) : (
-                <Navigate to="/verify-email" replace />
-              )
-            ) : (
-              <AuthPage isSignUp={true} />
-            )
-          }
+          element={<AuthPage isSignUp={true} currentUser={currentUser} isAuthLoading={isAuthLoading} />}
         />
 
         {/* Dedicated Email Verification Screen */}
         <Route
           path="/verify-email"
           element={
-            <VerifyEmailPage currentUser={currentUser} setCurrentUser={setCurrentUser} />
+            <VerifyEmailPage currentUser={currentUser} setCurrentUser={setCurrentUser} isAuthLoading={isAuthLoading} />
           }
         />
 

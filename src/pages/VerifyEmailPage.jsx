@@ -6,17 +6,20 @@ import { toast } from 'sonner'
 import { FileTextIcon, SparklesIcon, MailIcon } from '../components/Icons'
 import Footer from '../components/Footer'
 
-export default function VerifyEmailPage({ currentUser, setCurrentUser }) {
+export default function VerifyEmailPage({ currentUser, setCurrentUser, isAuthLoading = false }) {
   const navigate = useNavigate()
   const [isSending, setIsSending] = useState(false)
   const [isChecking, setIsChecking] = useState(false)
 
-  // If the user is already verified, bypass this screen immediately and go to "/"
+  // Auth state management & redirection
   useEffect(() => {
-    if (currentUser?.emailVerified) {
+    if (isAuthLoading) return
+    if (!currentUser && !auth.currentUser) {
+      navigate('/login', { replace: true })
+    } else if (currentUser?.emailVerified) {
       navigate('/', { replace: true })
     }
-  }, [currentUser, navigate])
+  }, [currentUser, isAuthLoading, navigate])
 
   // Resend verification email
   const handleResend = async () => {
