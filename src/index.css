@@ -39,3 +39,28 @@
   background: #94A3B8;
 }
 
+/* PDF Export & Print-safe rules */
+.pdf-avoid-break,
+.resume-entry,
+.resume-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+  header,
+  .no-print {
+    display: none !important;
+  }
+  #resume-document-preview {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+

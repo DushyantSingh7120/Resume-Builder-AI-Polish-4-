@@ -8,6 +8,7 @@ import {
   DEFAULT_EMPTY_RESUME,
   SAMPLE_RESUME
 } from './services/resumeService'
+import { exportResumeToPDF } from './services/pdfExportService'
 import Header from './components/Header'
 import FormEditor from './components/FormEditor'
 import ResumePreview from './components/ResumePreview'
@@ -20,10 +21,8 @@ export default function App() {
   const [resumeData, setResumeData] = useState(SAMPLE_RESUME)
   const [mobileView, setMobileView] = useState('editor') // 'editor' | 'preview'
   const [isSaving, setIsSaving] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
   const [lastSavedTime, setLastSavedTime] = useState(null)
-
-  // Track if user explicitly edited after load
-  const isInitialLoadRef = useRef(true)
 
   // Firebase Auth State Listener
   useEffect(() => {
@@ -40,7 +39,7 @@ export default function App() {
             setLastSavedTime(new Date())
             toast.success('Loaded your saved resume from cloud!')
           } else {
-            // Brand new account: start with empty template or current draft
+            // Brand new account: start with empty template
             setResumeData(DEFAULT_EMPTY_RESUME)
             toast.info('New account created. Fill in your details and click Save!')
           }
@@ -78,6 +77,20 @@ export default function App() {
     }
   }
 
+  // PDF Export handler
+  const handleExportPDF = async () => {
+    setIsExporting(true)
+    try {
+      await exportResumeToPDF('resume-document-preview', resumeData.personalInfo?.name)
+      toast.success('Resume downloaded as PDF!')
+    } catch (error) {
+      console.error('PDF export failed:', error)
+      toast.error(error.message || 'Failed to generate PDF. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   // Sign out handler
   const handleSignOut = async () => {
     try {
@@ -102,6 +115,8 @@ export default function App() {
         onSaveResume={handleSaveResume}
         onSignOut={handleSignOut}
         isSaving={isSaving}
+        onExportPDF={handleExportPDF}
+        isExporting={isExporting}
       />
 
       {/* Main Content Workspace */}
@@ -134,7 +149,11 @@ export default function App() {
             mobileView === 'editor' ? 'hidden md:block' : 'block'
           }`}
         >
-          <ResumePreview resumeData={resumeData} />
+          <ResumePreview
+            resumeData={resumeData}
+            onExportPDF={handleExportPDF}
+            isExporting={isExporting}
+          />
         </div>
       </main>
 

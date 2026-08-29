@@ -15,10 +15,31 @@ import {
   polishExperienceDescription,
   polishSkills
 } from '../services/aiPolishService'
+import { ensurePuterAuth } from '../services/puterService'
 
 export default function FormEditor({ resumeData, setResumeData }) {
   const [newSkill, setNewSkill] = useState('')
   const [polishingSection, setPolishingSection] = useState(null) // null | 'summary' | 'skills' | `exp-${id}` | 'experience-all'
+  const activeProvider = resumeData.aiProvider || 'default'
+
+  // Provider switch handler
+  const handleProviderSwitch = async (newProvider) => {
+    if (newProvider === activeProvider) return
+
+    if (newProvider === 'puter') {
+      try {
+        await ensurePuterAuth()
+        setResumeData((prev) => ({ ...prev, aiProvider: 'puter' }))
+        toast.success('Connected to Puter! AI calls will run on your Puter account.')
+      } catch (err) {
+        console.error('Puter auth error:', err)
+        toast.error('Could not authenticate with Puter. Staying on Default.')
+      }
+    } else {
+      setResumeData((prev) => ({ ...prev, aiProvider: 'default' }))
+      toast.info('Switched AI Provider to Default (Gemini).')
+    }
+  }
 
   // Personal Info change handler
   const handlePersonalInfoChange = (field, value) => {
@@ -130,7 +151,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
 
     setPolishingSection('summary')
     try {
-      const polished = await polishSummary(resumeData.personalInfo.summary)
+      const polished = await polishSummary(resumeData.personalInfo.summary, activeProvider)
       setResumeData((prev) => ({
         ...prev,
         personalInfo: {
@@ -138,7 +159,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
           summary: polished
         }
       }))
-      toast.success('Professional summary polished!')
+      toast.success(`Professional summary polished with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
     } catch (err) {
       console.error('Polish summary error:', err)
       toast.error(err.message || 'Failed to polish summary.')
@@ -157,9 +178,14 @@ export default function FormEditor({ resumeData, setResumeData }) {
     const sectionKey = `exp-${exp.id}`
     setPolishingSection(sectionKey)
     try {
-      const polished = await polishExperienceDescription(exp.description, exp.role, exp.company)
+      const polished = await polishExperienceDescription(
+        exp.description,
+        exp.role,
+        exp.company,
+        activeProvider
+      )
       handleExperienceChange(exp.id, 'description', polished)
-      toast.success(`Polished experience at ${exp.company || 'position'}!`)
+      toast.success(`Polished experience at ${exp.company || 'position'} with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
     } catch (err) {
       console.error('Polish experience error:', err)
       toast.error(err.message || 'Failed to polish experience.')
@@ -181,7 +207,12 @@ export default function FormEditor({ resumeData, setResumeData }) {
       const updatedExperience = await Promise.all(
         resumeData.experience.map(async (exp) => {
           if (!exp.description?.trim()) return exp
-          const polished = await polishExperienceDescription(exp.description, exp.role, exp.company)
+          const polished = await polishExperienceDescription(
+            exp.description,
+            exp.role,
+            exp.company,
+            activeProvider
+          )
           return { ...exp, description: polished }
         })
       )
@@ -189,7 +220,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
         ...prev,
         experience: updatedExperience
       }))
-      toast.success('All work experience entries polished!')
+      toast.success(`All experience entries polished with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
     } catch (err) {
       console.error('Polish all experience error:', err)
       toast.error(err.message || 'Failed to polish work experience.')
@@ -207,12 +238,12 @@ export default function FormEditor({ resumeData, setResumeData }) {
 
     setPolishingSection('skills')
     try {
-      const polished = await polishSkills(resumeData.skills)
+      const polished = await polishSkills(resumeData.skills, activeProvider)
       setResumeData((prev) => ({
         ...prev,
         skills: polished
       }))
-      toast.success('Skills organized and standardized!')
+      toast.success(`Skills polished with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
     } catch (err) {
       console.error('Polish skills error:', err)
       toast.error(err.message || 'Failed to polish skills.')
@@ -222,7 +253,51 @@ export default function FormEditor({ resumeData, setResumeData }) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-8">
+    <div className="w-full max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-6">
+      {/* Signature Element: Provider Selector & Indicator */}
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-[#0F172A]">AI Polish Engine:</span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
+              <SparklesIcon className="w-3 h-3" />
+              {activeProvider === 'puter' ? 'Puter.js (BYO)' : 'Default (Gemini)'}
+            </span>
+          </div>
+          <p className="text-[11px] text-[#64748B] mt-0.5">
+            {activeProvider === 'puter'
+              ? 'Using your connected Puter account allowance.'
+              : 'Using built-in Gemini 3.6 Flash engine.'}
+          </p>
+        </div>
+
+        {/* Toggle Switch */}
+        <div className="inline-flex bg-[#F1F5F9] p-1 rounded-lg border border-[#E2E8F0] shrink-0 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => handleProviderSwitch('default')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+              activeProvider === 'default'
+                ? 'bg-white text-[#0F172A] shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            Default
+          </button>
+          <button
+            type="button"
+            onClick={() => handleProviderSwitch('puter')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+              activeProvider === 'puter'
+                ? 'bg-white text-[#0F172A] shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            Puter.js
+          </button>
+        </div>
+      </div>
+
       {/* Section 1: Personal Information */}
       <section className="bg-white border border-[#E2E8F0] rounded-xl p-5 md:p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
@@ -237,7 +312,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'summary' ? 'animate-spin text-[#2563EB]' : ''}`} />
-            {polishingSection === 'summary' ? 'Polishing...' : 'Polish Summary with AI'}
+            {polishingSection === 'summary' ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
           </button>
         </div>
 
@@ -290,7 +365,9 @@ export default function FormEditor({ resumeData, setResumeData }) {
         <div className="space-y-1.5 pt-1">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-medium text-[#64748B]">Professional Summary</label>
-            <span className="text-[11px] text-[#94A3B8]">Click button above to polish</span>
+            <span className="text-[11px] text-[#94A3B8]">
+              {activeProvider === 'puter' ? 'Polishing via Puter' : 'Polishing via Gemini'}
+            </span>
           </div>
           <textarea
             rows={3}
@@ -316,7 +393,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'experience-all' ? 'animate-spin text-[#2563EB]' : ''}`} />
-            {polishingSection === 'experience-all' ? 'Polishing All...' : 'Polish All with AI'}
+            {polishingSection === 'experience-all' ? 'Polishing All...' : `Polish All with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
           </button>
         </div>
 
@@ -333,10 +410,10 @@ export default function FormEditor({ resumeData, setResumeData }) {
                     type="button"
                     onClick={() => handlePolishExperienceEntry(exp)}
                     disabled={polishingSection === `exp-${exp.id}`}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] hover:text-blue-800 bg-white border border-blue-200 hover:bg-blue-50 px-2 py-0.5 rounded transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:text-blue-800 bg-[#EFF6FF] hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer disabled:opacity-60"
                   >
-                    <SparklesIcon className={`w-3 h-3 ${polishingSection === `exp-${exp.id}` ? 'animate-spin text-[#2563EB]' : ''}`} />
-                    {polishingSection === `exp-${exp.id}` ? 'Polishing...' : 'Polish'}
+                    <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === `exp-${exp.id}` ? 'animate-spin text-[#2563EB]' : ''}`} />
+                    {polishingSection === `exp-${exp.id}` ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
                   </button>
                   <button
                     type="button"
@@ -538,7 +615,7 @@ export default function FormEditor({ resumeData, setResumeData }) {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF] hover:bg-blue-100 disabled:opacity-50 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <SparklesIcon className={`w-3.5 h-3.5 ${polishingSection === 'skills' ? 'animate-spin text-[#2563EB]' : ''}`} />
-            {polishingSection === 'skills' ? 'Polishing...' : 'Polish Skills with AI'}
+            {polishingSection === 'skills' ? 'Polishing...' : `Polish with ${activeProvider === 'puter' ? 'Puter' : 'AI'}`}
           </button>
         </div>
 

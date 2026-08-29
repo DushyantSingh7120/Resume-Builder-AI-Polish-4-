@@ -8,7 +8,9 @@ export default function Header({
   onOpenAuth,
   onSaveResume,
   onSignOut,
-  isSaving
+  isSaving,
+  onExportPDF,
+  isExporting
 }) {
   return (
     <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-8 h-16 shrink-0 flex items-center justify-between z-20">
@@ -59,20 +61,22 @@ export default function Header({
             type="button"
             onClick={onSaveResume}
             disabled={isSaving}
-            className="inline-flex items-center gap-1.5 bg-white border border-[#CBD5E1] hover:border-[#0F766E] text-[#0F172A] hover:text-[#0F766E] text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 bg-white border border-[#CBD5E1] hover:border-[#0F766E] text-[#0F172A] hover:text-[#0F766E] text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
           >
             <span className={`w-2 h-2 rounded-full ${isSaving ? 'bg-amber-500 animate-spin' : 'bg-[#0F766E]'}`}></span>
             {isSaving ? 'Saving...' : 'Save'}
           </button>
         )}
 
-        {/* Download Action (Ready for Phase 5) */}
+        {/* Download PDF Action */}
         <button
           type="button"
-          className="hidden sm:inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shadow-xs"
+          onClick={onExportPDF}
+          disabled={isExporting}
+          className="hidden sm:inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-60 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shadow-xs cursor-pointer"
         >
-          <DownloadIcon className="w-3.5 h-3.5" />
-          Download PDF
+          <DownloadIcon className={`w-3.5 h-3.5 ${isExporting ? 'animate-bounce' : ''}`} />
+          {isExporting ? 'Exporting PDF...' : 'Download PDF'}
         </button>
 
         {/* Auth controls */}

@@ -20,12 +20,12 @@ function formatDate(dateStr) {
   }
 }
 
-export default function ResumePreview({ resumeData }) {
+export default function ResumePreview({ resumeData, onExportPDF, isExporting }) {
   const { personalInfo, experience, education, skills, aiProvider = 'default' } = resumeData
 
   return (
     <div className="w-full flex flex-col items-center py-6 px-4 md:px-6">
-      {/* Utility Bar above Paper Document */}
+      {/* Contextual Utility Bar above Paper Document */}
       <div className="w-full max-w-[760px] flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2 bg-white border border-[#E2E8F0] px-3 py-1.5 rounded-full shadow-2xs">
           <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse"></span>
@@ -34,9 +34,18 @@ export default function ResumePreview({ resumeData }) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-[#64748B] font-medium">
-          <span className="hidden sm:inline">Live Document Preview</span>
-          <span className="px-2 py-0.5 bg-[#F1F5F9] rounded text-[10px] font-bold uppercase tracking-wider text-[#475569]">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onExportPDF}
+            disabled={isExporting}
+            className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+          >
+            <DownloadIcon className={`w-3.5 h-3.5 ${isExporting ? 'animate-bounce' : ''}`} />
+            {isExporting ? 'Generating PDF...' : 'Download PDF'}
+          </button>
+
+          <span className="hidden sm:inline-block px-2 py-1 bg-[#F1F5F9] rounded text-[10px] font-bold uppercase tracking-wider text-[#475569]">
             8.5 × 11
           </span>
         </div>
@@ -45,11 +54,11 @@ export default function ResumePreview({ resumeData }) {
       {/* The Printable Resume Paper Document */}
       <article
         id="resume-document-preview"
-        className="w-full max-w-[760px] bg-white border border-[#E2E8F0] rounded-sm p-8 sm:p-12 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.08),0_2px_6px_-1px_rgba(15,23,42,0.04)] transition-all flex flex-col min-h-[1000px] text-[#0F172A]"
+        className="w-full max-w-[760px] bg-white border border-[#E2E8F0] rounded-xs p-6 sm:p-10 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.08),0_2px_6px_-1px_rgba(15,23,42,0.04)] transition-all flex flex-col text-[#0F172A]"
         style={{ fontFamily: 'var(--font-serif, "Source Serif 4", Georgia, serif)' }}
       >
         {/* Document Header */}
-        <header className="border-b-2 border-[#0F172A] pb-5 mb-6 text-center">
+        <header className="pdf-avoid-break border-b-2 border-[#0F172A] pb-5 mb-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A] mb-2 font-serif">
             {personalInfo.name || 'Your Full Name'}
           </h1>
@@ -81,7 +90,7 @@ export default function ResumePreview({ resumeData }) {
 
         {/* Professional Summary */}
         {personalInfo.summary && (
-          <section className="mb-6">
+          <section className="resume-section pdf-avoid-break mb-6">
             <h2
               className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-2.5"
               style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
@@ -96,9 +105,9 @@ export default function ResumePreview({ resumeData }) {
 
         {/* Work Experience */}
         {experience && experience.length > 0 && (
-          <section className="mb-6">
+          <section className="resume-section mb-6">
             <h2
-              className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-3.5"
+              className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-3.5 pdf-avoid-break"
               style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
             >
               Work Experience
@@ -119,7 +128,7 @@ export default function ResumePreview({ resumeData }) {
                   : []
 
                 return (
-                  <div key={exp.id || index} className="space-y-1">
+                  <div key={exp.id || index} className="resume-entry pdf-avoid-break space-y-1">
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
                       <h3 className="text-sm sm:text-[15px] font-bold text-[#0F172A]">
                         {exp.role || 'Job Title'}
@@ -165,9 +174,9 @@ export default function ResumePreview({ resumeData }) {
 
         {/* Education */}
         {education && education.length > 0 && (
-          <section className="mb-6">
+          <section className="resume-section mb-6">
             <h2
-              className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-3"
+              className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-3 pdf-avoid-break"
               style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
             >
               Education
@@ -180,7 +189,7 @@ export default function ResumePreview({ resumeData }) {
                 const dateString = [startDateFormatted, endDateFormatted].filter(Boolean).join(' – ')
 
                 return (
-                  <div key={edu.id || index} className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
+                  <div key={edu.id || index} className="resume-entry pdf-avoid-break flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-[#0F172A]">
                         {edu.degree || 'Degree / Major'}
@@ -210,7 +219,7 @@ export default function ResumePreview({ resumeData }) {
 
         {/* Skills */}
         {skills && skills.length > 0 && (
-          <section className="mt-auto pt-4">
+          <section className="resume-section pdf-avoid-break pt-1">
             <h2
               className="text-[12px] font-bold uppercase tracking-widest text-[#0F172A] border-b border-[#E2E8F0] pb-1 mb-2.5"
               style={{ fontFamily: 'var(--font-sans, "Inter", sans-serif)' }}
