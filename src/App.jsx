@@ -7,6 +7,8 @@ import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
 import BuilderPage from './pages/BuilderPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './components/NotFound'
 
@@ -111,6 +113,10 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Legal Pages */}
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
 
         {/* Catch-all 404 Route */}
         <Route path="*" element={<NotFound />} />
