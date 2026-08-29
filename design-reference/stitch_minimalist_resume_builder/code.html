@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ResumeBuilder - Form Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#005049",
+                    "secondary-fixed": "#dbe1ff",
+                    "secondary-container": "#316bf3",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-tertiary-fixed-variant": "#773215",
+                    "primary-container": "#008378",
+                    "outline": "#6d7a77",
+                    "surface-tint": "#006a61",
+                    "on-error": "#ffffff",
+                    "tertiary-container": "#b05e3d",
+                    "tertiary": "#924628",
+                    "tertiary-fixed-dim": "#ffb59a",
+                    "inverse-primary": "#6bd8cb",
+                    "primary-fixed": "#89f5e7",
+                    "surface-container-high": "#e1e8fd",
+                    "outline-variant": "#bcc9c6",
+                    "primary-fixed-dim": "#6bd8cb",
+                    "primary": "#00685f",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f1f3ff",
+                    "surface": "#f9f9ff",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#e9edff",
+                    "on-secondary-fixed": "#00174b",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "inverse-surface": "#293040",
+                    "on-background": "#141b2b",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#f4fffc",
+                    "background": "#f9f9ff",
+                    "on-surface": "#141b2b",
+                    "secondary": "#0051d5",
+                    "on-tertiary-container": "#fffbff",
+                    "on-secondary-container": "#fefcff",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#dce2f7",
+                    "surface-bright": "#f9f9ff",
+                    "on-primary-fixed": "#00201d",
+                    "tertiary-fixed": "#ffdbce",
+                    "surface-container-highest": "#dce2f7",
+                    "on-tertiary-fixed": "#370e00",
+                    "surface-dim": "#d3daef",
+                    "on-surface-variant": "#3d4947"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-lg": "32px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "stack-md": "16px",
+                    "gutter": "24px",
+                    "stack-sm": "8px",
+                    "container-max": "1200px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md-mobile": ["Inter"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .input-glow:focus {
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+            border-color: #2563EB;
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-full font-body-md overflow-hidden flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full h-16 shrink-0 z-10">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary dark:text-primary-fixed-dim font-bold">ResumeBuilder</span>
+<nav class="hidden md:flex gap-6 ml-8">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary py-5 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors opacity-80" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant py-5 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Templates</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant py-5 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Tips</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim hover:bg-surface-variant px-4 py-2 rounded-lg transition-colors">Preview</button>
+<button class="font-label-md text-label-md bg-primary text-on-primary px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">Download PDF</button>
+<img alt="User profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A small circular avatar showing a professional headshot of a person against a clean neutral background. Bright, even lighting. Minimalist style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAVill99tPICXXn0RxzUzzFLRe3ej0DfpvMuCoCQJ1_XGLdfYUdWlqtRJb9k5aM_VJrDLh6nuV_iuZ9I0zJCgkEQ6t7SCuNIpp_PZyQFl8nVm6xn6EJ5_URrTBriYuoaHVU6W22lektxH2QhHzowzNA1OeKNmtAgLYN5fxfHHEqDwWXwZaGnqHdF5ZpNljcE1POCn_I2CWGufWTTTWaCBoG_a1hLjma8Rbo2UmMRP2Am-HshWq8JZz"/>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-surface-container-low border-r border-outline-variant dark:border-outline h-full w-64 hidden md:flex flex-col py-stack-lg gap-stack-md shrink-0">
+<div class="px-6 pb-4 border-b border-outline-variant mb-2">
+<div class="flex items-center gap-3">
+<img alt="Resume preview thumbnail" class="w-10 h-14 object-cover border border-outline-variant rounded shadow-sm" data-alt="A small thumbnail preview of a professional resume document showing structured text blocks and elegant typography on a white page." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVWQt4fP6rS4TFRnetImVO7Lzf6Dy0HoIqvIilrhz8SyYMJyUMUbLII_0jhxBfZ4_nwKE395RmrBBS8SrTfy0fgje4yxc9IS4-Mxuy-ihab3uLmhxGNXApAfPTjuJAeNuhvxlxk0Ge5D8Z8LCW8erU65j6vSnHvX9aYZnD6S7PWd6V_oy8v6l0vp1hILdih0Ioqv1sKfNQN_JfAu8LbZ_qH4EJG5lqna6Yq3hcIVgwL0Mkaaqt5Nux"/>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface dark:text-on-surface-variant">Current Resume</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">Last edited 2m ago</p>
+</div>
+</div>
+<button class="mt-4 w-full flex items-center justify-center gap-2 border border-[#2563EB] text-[#2563EB] font-label-md text-label-md py-2 rounded-lg hover:bg-[#EFF6FF] transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">auto_awesome</span>
+                    Polish with AI
+                </button>
+</div>
+<div class="flex flex-col w-full">
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary bg-surface-container-high scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">person</span> Contact Info
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-all" href="#experience">
+<span class="material-symbols-outlined">work</span> Experience
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-all" href="#education">
+<span class="material-symbols-outlined">school</span> Education
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-all" href="#skills">
+<span class="material-symbols-outlined">psychology</span> Skills
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-all" href="#summary">
+<span class="material-symbols-outlined">description</span> Summary
+                </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-surface p-margin-mobile md:p-margin-desktop">
+<div class="max-w-[800px] mx-auto space-y-stack-lg pb-24">
+<!-- Personal Info Section -->
+<section class="space-y-stack-md" id="contact-info">
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-on-background border-b border-outline-variant pb-2">Personal Information</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Full Name</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="text" value="Jane Doe"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Email Address</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="email" value="jane.doe@example.com"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Phone Number</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="tel" value="+1 (555) 123-4567"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Location</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="text" value="San Francisco, CA"/>
+</div>
+</div>
+<div class="space-y-1 pt-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Professional Summary</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface outline-none input-glow transition-all resize-y" rows="4">Experienced Product Designer with 5+ years specializing in complex enterprise tools and design systems.</textarea>
+</div>
+</section>
+<!-- Work Experience Section -->
+<section class="space-y-stack-md pt-8" id="experience">
+<div class="flex items-center justify-between border-b border-outline-variant pb-2">
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-on-background">Work Experience</h2>
+<button class="flex items-center gap-2 border border-[#2563EB] text-[#2563EB] font-label-sm text-label-sm px-3 py-1.5 rounded-lg hover:bg-[#EFF6FF] transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">auto_awesome</span> Polish with AI
+                        </button>
+</div>
+<!-- Experience Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 relative group card-shadow hover:border-primary-container transition-colors">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 bg-surface-container border border-outline-variant rounded-full p-1 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">drag_indicator</span>
+</div>
+<button class="absolute top-4 right-4 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-4">
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Job Title</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="text" value="Senior Product Designer"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Company</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="text" value="TechCorp Inc."/>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter mb-4">
+<div class="space-y-1 col-span-1 md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Start Date</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="month" value="2020-03"/>
+</div>
+<div class="space-y-1 col-span-1 md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">End Date</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="month"/>
+<div class="flex items-center gap-2 mt-1">
+<input checked="" class="rounded border-outline-variant text-[#0D9488] focus:ring-[#0D9488]" id="current-job" type="checkbox"/>
+<label class="font-body-sm text-body-sm text-on-surface-variant" for="current-job">Present</label>
+</div>
+</div>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Description</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all resize-y" rows="3">- Led redesign of core platform, improving user retention by 25%.
+- Established and maintained comprehensive design system.
+- Mentored junior designers and facilitated cross-functional workshops.</textarea>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 font-label-md text-label-md bg-[#0D9488] text-white px-4 py-3 rounded-xl hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span> Add Work Experience
+                    </button>
+</section>
+<!-- Education Section -->
+<section class="space-y-stack-md pt-8" id="education">
+<div class="flex items-center justify-between border-b border-outline-variant pb-2">
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-on-background">Education</h2>
+<button class="flex items-center gap-2 border border-[#2563EB] text-[#2563EB] font-label-sm text-label-sm px-3 py-1.5 rounded-lg hover:bg-[#EFF6FF] transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">auto_awesome</span> Polish with AI
+                        </button>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 relative group card-shadow hover:border-primary-container transition-colors">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 bg-surface-container border border-outline-variant rounded-full p-1 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">drag_indicator</span>
+</div>
+<button class="absolute top-4 right-4 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-4">
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Degree / Certification</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="text" value="BFA in Interaction Design"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">School / Institution</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="text" value="California College of the Arts"/>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<div class="space-y-1 col-span-1 md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Start Date</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="month" value="2014-08"/>
+</div>
+<div class="space-y-1 col-span-1 md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">End Date</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface outline-none input-glow transition-all" type="month" value="2018-05"/>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 font-label-md text-label-md bg-[#0D9488] text-white px-4 py-3 rounded-xl hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span> Add Education
+                    </button>
+</section>
+<!-- Skills Section -->
+<section class="space-y-stack-md pt-8" id="skills">
+<div class="flex items-center justify-between border-b border-outline-variant pb-2">
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-on-background">Skills</h2>
+<button class="flex items-center gap-2 border border-[#2563EB] text-[#2563EB] font-label-sm text-label-sm px-3 py-1.5 rounded-lg hover:bg-[#EFF6FF] transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">auto_awesome</span> Polish with AI
+                        </button>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 min-h-[120px] input-glow cursor-text flex flex-wrap gap-2 items-start" onclick="document.getElementById('skill-input').focus()">
+<!-- Chips -->
+<div class="flex items-center gap-1 bg-[#F3F4F6] px-3 py-1.5 rounded-full font-body-sm text-body-sm text-on-surface group">
+                            User Research
+                            <button class="text-on-surface-variant hover:text-error flex items-center justify-center rounded-full p-0.5 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 14px;">close</span>
+</button>
+</div>
+<div class="flex items-center gap-1 bg-[#F3F4F6] px-3 py-1.5 rounded-full font-body-sm text-body-sm text-on-surface group">
+                            Figma
+                            <button class="text-on-surface-variant hover:text-error flex items-center justify-center rounded-full p-0.5 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 14px;">close</span>
+</button>
+</div>
+<div class="flex items-center gap-1 bg-[#F3F4F6] px-3 py-1.5 rounded-full font-body-sm text-body-sm text-on-surface group">
+                            Design Systems
+                            <button class="text-on-surface-variant hover:text-error flex items-center justify-center rounded-full p-0.5 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 14px;">close</span>
+</button>
+</div>
+<div class="flex items-center gap-1 bg-[#F3F4F6] px-3 py-1.5 rounded-full font-body-sm text-body-sm text-on-surface group">
+                            Prototyping
+                            <button class="text-on-surface-variant hover:text-error flex items-center justify-center rounded-full p-0.5 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 14px;">close</span>
+</button>
+</div>
+<!-- Input -->
+<input class="flex-1 min-w-[150px] bg-transparent border-none p-1 outline-none font-body-md text-body-md text-on-surface placeholder:text-outline-variant focus:ring-0" id="skill-input" placeholder="Type a skill and press Enter..." type="text"/>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

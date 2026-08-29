@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ResumeBuilder - Live Preview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-primary-fixed-variant": "#005049",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed": "#00201d",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#3d4947",
+                        "tertiary-fixed": "#ffdbce",
+                        "surface-container": "#e9edff",
+                        "surface-container-highest": "#dce2f7",
+                        "secondary": "#0051d5",
+                        "on-surface": "#141b2b",
+                        "primary-container": "#008378",
+                        "primary": "#00685f",
+                        "tertiary": "#924628",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-fixed-variant": "#773215",
+                        "outline-variant": "#bcc9c6",
+                        "outline": "#6d7a77",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "surface-container-high": "#e1e8fd",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary-fixed": "#370e00",
+                        "surface-tint": "#006a61",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#f4fffc",
+                        "surface-dim": "#d3daef",
+                        "on-secondary-container": "#fefcff",
+                        "surface": "#f9f9ff",
+                        "surface-container-low": "#f1f3ff",
+                        "on-background": "#141b2b",
+                        "inverse-surface": "#293040",
+                        "surface-variant": "#dce2f7",
+                        "primary-fixed": "#89f5e7",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9ff",
+                        "inverse-primary": "#6bd8cb",
+                        "secondary-container": "#316bf3",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "inverse-on-surface": "#edf0ff",
+                        "tertiary-container": "#b05e3d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "container-max": "1200px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "40px",
+                        "unit": "4px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .paper-shadow {
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05), 0px 1px 3px rgba(0, 0, 0, 0.02);
+        }
+        /* Custom print-like tight spacing for the resume content */
+        .resume-content p, .resume-content ul, .resume-content h2, .resume-content h3 {
+            margin-bottom: 0.5rem;
+        }
+        .resume-content h2 { margin-top: 1rem; }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-body-md text-on-surface h-screen w-full overflow-hidden flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant full-width top-0 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full h-16 shrink-0 z-10 relative">
+<div class="flex items-center gap-stack-lg">
+<span class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary font-bold">ResumeBuilder</span>
+<nav class="hidden md:flex items-center gap-stack-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Templates</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Tips</a>
+</nav>
+</div>
+<div class="flex items-center gap-stack-sm">
+<button class="hidden md:flex items-center justify-center px-4 py-2 font-label-md text-label-md text-primary border border-outline-variant rounded-DEFAULT hover:bg-surface-container transition-colors">
+                Preview
+            </button>
+<button class="flex items-center justify-center px-4 py-2 bg-primary text-on-primary font-label-md text-label-md rounded-DEFAULT hover:opacity-80 transition-opacity">
+                Download PDF
+            </button>
+<img alt="User profile" class="w-8 h-8 rounded-full ml-2" data-alt="A detailed headshot portrait of a professional woman, well-lit against a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABP9qd87UVoP4bGmcr-PPaGy5AhZNTPNKWL4R27XrFH31D5llbWbggrD4gwhooTL3WMR0Jg1vx-mE5nP-eDBK-4WKXOX0TRQ4D-LTlE2adRuGxWf4QVT7smMRjLClHJ3bIa3xVow48lS7dFBgD8YV2LMAtDpqpKxZbQUXFcfKCLX40dCPaVVv3UGBQ_pSBOfEWDc4YDMAxFZZoU3n7wppuT3akByCccKah6hFQO2Vd-510A1B1TVEo"/>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden w-full">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col py-stack-lg gap-stack-md bg-surface-container-lowest h-full w-64 docked left-0 border-r border-outline-variant shrink-0 z-10 overflow-y-auto">
+<div class="px-6 mb-4 flex flex-col items-center text-center">
+<div class="w-20 h-24 bg-surface-variant rounded-DEFAULT border border-outline-variant mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-outline-variant text-[32px]">description</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Current Resume</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Last edited 2m ago</p>
+</div>
+<nav class="flex flex-col flex-1 w-full">
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined">person</span> Contact Info
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-primary font-bold border-r-4 border-primary bg-surface-container-high scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">work</span> Experience
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined">school</span> Education
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined">psychology</span> Skills
+                </a>
+<a class="flex items-center gap-3 px-6 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined">description</span> Summary
+                </a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 px-4 py-2 font-label-md text-label-md text-secondary border border-secondary rounded-DEFAULT hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span> Polish with AI
+                </button>
+</div>
+</aside>
+<!-- Main Canvas Area -->
+<main class="flex-1 bg-surface-variant overflow-y-auto w-full p-margin-mobile md:p-margin-desktop flex flex-col items-center">
+<!-- Contextual Panel Utility Bar -->
+<div class="w-full max-w-[850px] flex justify-between items-center mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">tune</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Polishing with: Default</span>
+</div>
+<!-- Small action specific to this panel context -->
+<button class="flex items-center gap-2 px-3 py-1.5 bg-primary text-on-primary font-label-sm text-label-sm rounded-DEFAULT shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">download</span> Download PDF
+                </button>
+</div>
+<!-- The Resume "Paper" Document -->
+<article class="bg-surface-container-lowest paper-shadow w-full max-w-[850px] mx-auto p-8 md:p-12 border border-outline-variant/30 flex flex-col resume-content" style="aspect-ratio: 8.5/11; min-height: 1100px;">
+<!-- Document Header -->
+<header class="border-b-2 border-on-surface pb-5 mb-6 text-center">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2 tracking-tight">Jane Doe</h1>
+<div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 font-body-sm text-body-sm text-on-surface-variant">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">mail</span> jane.doe@example.com</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">call</span> (555) 123-4567</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">location_on</span> San Francisco, CA</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">language</span> janedoe.design</span>
+</div>
+</header>
+<!-- Professional Summary -->
+<section class="mb-6">
+<h2 class="font-label-md text-label-md text-on-surface border-b border-outline-variant pb-1 tracking-widest uppercase mb-3">Professional Summary</h2>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed text-justify">
+                        Results-driven Product Designer with over 7 years of experience in creating user-centric digital experiences. Proven track record of leading end-to-end design processes from conceptualization to successful launch. Adept at bridging the gap between complex business requirements and intuitive user interfaces, driving measurable increases in engagement, retention, and overall user satisfaction across diverse platforms.
+                    </p>
+</section>
+<!-- Experience -->
+<section class="mb-6">
+<h2 class="font-label-md text-label-md text-on-surface border-b border-outline-variant pb-1 tracking-widest uppercase mb-4">Experience</h2>
+<div class="mb-5">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Senior Product Designer</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Jan 2020 – Present</span>
+</div>
+<div class="font-body-md text-body-md text-primary font-semibold mb-2">TechVision Solutions • San Francisco, CA</div>
+<ul class="list-disc ml-5 font-body-md text-body-md text-on-surface space-y-1.5">
+<li>Spearheaded the comprehensive redesign of the core SaaS platform, directly resulting in a 40% increase in user retention over a 6-month period.</li>
+<li>Established and meticulously maintained a scalable design system, reducing design-to-development handoff time by 30% and ensuring brand consistency.</li>
+<li>Mentored a cross-functional team of 3 junior designers, fostering a culture of continuous learning, rigorous critique, and high-quality output.</li>
+</ul>
+</div>
+<div class="mb-2">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">UX/UI Designer</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Jun 2016 – Dec 2019</span>
+</div>
+<div class="font-body-md text-body-md text-primary font-semibold mb-2">Creative Minds Agency • New York, NY</div>
+<ul class="list-disc ml-5 font-body-md text-body-md text-on-surface space-y-1.5">
+<li>Delivered highly tailored, accessible e-commerce experiences for multiple Fortune 500 clients, driving average conversion rate improvements of 15%.</li>
+<li>Conducted extensive generative and evaluative user research, including A/B testing and usability studies, to inform critical design pivots.</li>
+</ul>
+</div>
+</section>
+<!-- Education -->
+<section class="mb-6">
+<h2 class="font-label-md text-label-md text-on-surface border-b border-outline-variant pb-1 tracking-widest uppercase mb-4">Education</h2>
+<div class="flex justify-between items-baseline">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Bachelor of Fine Arts in Interaction Design</h3>
+<div class="font-body-md text-body-md text-on-surface-variant mt-0.5">Rhode Island School of Design (RISD)</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">2012 – 2016</span>
+</div>
+</section>
+<!-- Skills -->
+<section class="mt-auto pt-4">
+<h2 class="font-label-md text-label-md text-on-surface border-b border-outline-variant pb-1 tracking-widest uppercase mb-4">Skills &amp; Tools</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 font-body-md text-body-md text-on-surface">
+<div class="flex items-start">
+<span class="font-semibold w-24 shrink-0 text-on-surface-variant">Design:</span>
+<span>Wireframing, Prototyping, Visual Design, Interaction Architecture</span>
+</div>
+<div class="flex items-start">
+<span class="font-semibold w-24 shrink-0 text-on-surface-variant">Research:</span>
+<span>User Interviews, Usability Testing, Persona Development</span>
+</div>
+<div class="flex items-start">
+<span class="font-semibold w-24 shrink-0 text-on-surface-variant">Tools:</span>
+<span>Figma, Sketch, Adobe Creative Suite, Principle, Webflow</span>
+</div>
+<div class="flex items-start">
+<span class="font-semibold w-24 shrink-0 text-on-surface-variant">Technical:</span>
+<span>HTML5/CSS3, Basic JavaScript, Tailwind CSS, Git</span>
+</div>
+</div>
+</section>
+</article>
+<!-- Bottom padding for scrollability -->
+<div class="h-12 w-full shrink-0"></div>
+</main>
+</div>
+</body></html>
