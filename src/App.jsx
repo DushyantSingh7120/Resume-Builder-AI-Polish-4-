@@ -5,9 +5,11 @@ import { auth } from './config/firebase'
 import {
   loadResumeFromFirestore,
   saveResumeToFirestore,
+  testCrossUserRead,
   DEFAULT_EMPTY_RESUME,
   SAMPLE_RESUME
 } from './services/resumeService'
+
 import { exportResumeToPDF } from './services/pdfExportService'
 import Header from './components/Header'
 import FormEditor from './components/FormEditor'
@@ -55,6 +57,13 @@ export default function App() {
 
     return () => unsubscribe()
   }, [])
+
+  // Expose security testing helper on window for Phase 7
+  useEffect(() => {
+    window.testCrossUserRead = testCrossUserRead
+  }, [])
+
+
 
   // Manual Save Resume handler
   const handleSaveResume = async () => {

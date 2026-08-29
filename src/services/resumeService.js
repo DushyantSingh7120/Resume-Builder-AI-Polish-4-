@@ -117,3 +117,26 @@ export async function saveResumeToFirestore(uid, resumeData) {
     { merge: true }
   )
 }
+
+/**
+ * Security Rule Test: Attempt an unauthorized read of another user's document
+ * @param {string} targetUid 
+ * @returns {Promise<{blocked: boolean, error?: any}>}
+ */
+export async function testCrossUserRead(targetUid = 'unauthorized-target-uid-99999') {
+  console.log(`[Security Test]: Attempting unauthorized read on "users/${targetUid}"...`)
+  try {
+    const docRef = doc(db, 'users', targetUid)
+    const docSnap = await getDoc(docRef)
+    console.warn('[Security Test WARNING]: Read succeeded without permission-denied error. Please ensure firestore.rules is published in Firebase Console.', docSnap.data())
+    return { blocked: false, message: 'Read succeeded (Rules may not be published in console yet)' }
+  } catch (error) {
+    if (error.code === 'permission-denied' || error.message?.includes('insufficient permissions')) {
+      console.log('[Security Test PASSED ✅]: Firestore blocked cross-user read with permission-denied.', error)
+      return { blocked: true, error }
+    }
+    console.error('[Security Test Unexpected Error]:', error)
+    return { blocked: false, error }
+  }
+}
+
