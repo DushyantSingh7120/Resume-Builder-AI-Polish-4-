@@ -16,9 +16,11 @@ import FormEditor from './components/FormEditor'
 import ResumePreview from './components/ResumePreview'
 import ResumeSkeleton from './components/ResumeSkeleton'
 import AuthModal from './components/AuthModal'
+import NotFound from './components/NotFound'
 import { CloseIcon, MailIcon } from './components/Icons'
 
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(() => (typeof window !== 'undefined' ? window.location.pathname : '/'))
   const [currentUser, setCurrentUser] = useState(null)
   const [isDataLoading, setIsDataLoading] = useState(true)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
@@ -177,6 +179,18 @@ export default function App() {
     } finally {
       setIsSendingVerification(false)
     }
+  }
+
+  // 404 Handler for unmatched paths
+  if (currentPath !== '/' && currentPath !== '' && currentPath !== '/index.html') {
+    return (
+      <NotFound
+        onReturnHome={() => {
+          window.history.pushState({}, '', '/')
+          setCurrentPath('/')
+        }}
+      />
+    )
   }
 
   return (

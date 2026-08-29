@@ -30,7 +30,6 @@ export async function callGeminiAPI(prompt, userId = null) {
   })
 
   const data = await response.json()
-  console.log('[API Polish Server Response]:', data)
 
   if (!response.ok) {
     if (data?.error === 'EMAIL_NOT_VERIFIED' || response.status === 403) {

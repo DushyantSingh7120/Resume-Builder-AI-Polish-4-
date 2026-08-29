@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Page Not Found | ResumeBuilder</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: #F8FAFC;
+        color: #0F172A;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      header {
+        background: #fff;
+        border-bottom: 1px solid #E2E8F0;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 18px;
+        color: #0F172A;
+      }
+      main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 440px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      }
+      .badge {
+        display: inline-block;
+        background: #CCFBF1;
+        color: #0F766E;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 8px;
+      }
+      p {
+        color: #64748B;
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0 0 24px;
+      }
+      .btn {
+        display: inline-block;
+        width: 100%;
+        box-sizing: border-box;
+        background: #0F766E;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px;
+        border-radius: 8px;
+      }
+      .btn:hover {
+        background: #115E59;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">ResumeBuilder</div>
+    </header>
+    <main>
+      <div class="card">
+        <span class="badge">404 Error</span>
+        <h1>Page Not Found</h1>
+        <p>The page you're looking for doesn't exist or may have moved. Return to the builder to continue working on your resume.</p>
+        <a href="/" class="btn">Return to Resume Builder</a>
+      </div>
+    </main>
+  </body>
+</html>

@@ -17,7 +17,6 @@ export function isPuterConnectedForUser(uid) {
  * Clear the in-memory Puter connection session on sign out
  */
 export function clearPuterSession() {
-  console.log('[Puter.js]: Cleared app-level Puter connection session.')
   activePuterSessionUid = null
 }
 
@@ -35,10 +34,8 @@ export async function ensurePuterAuth(uid = null) {
 
   // If this specific signed-in user has not completed Puter sign-in in this session, prompt them
   if (activePuterSessionUid !== userKey) {
-    console.log(`[Puter.js]: Prompting Puter sign-in for account (${userKey})...`)
     await window.puter.auth.signIn()
     activePuterSessionUid = userKey
-    console.log(`[Puter.js]: Account (${userKey}) successfully connected to Puter.`)
   }
 
   return true
@@ -53,13 +50,8 @@ export async function ensurePuterAuth(uid = null) {
 export async function callPuterAI(prompt, uid = null) {
   await ensurePuterAuth(uid)
 
-  console.log(`[Puter.js AI]: Routing request via Puter account for (${uid || 'guest'})...`)
-  
   try {
     const response = await window.puter.ai.chat(prompt, { stream: false })
-
-    // Log raw Puter response as required
-    console.log('[Puter.js Raw Response]:', response)
 
     if (!response) {
       throw new Error('No response returned from Puter AI.')
