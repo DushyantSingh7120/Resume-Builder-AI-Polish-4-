@@ -57,11 +57,18 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
         </div>
 
         <div className="flex items-center gap-2">
+          {!hasAnyContent && (
+            <span className="hidden lg:inline-block text-[11px] text-[#64748B] italic">
+              Add some details before downloading.
+            </span>
+          )}
+
           <button
             type="button"
             onClick={onExportPDF}
             disabled={isExporting || !hasAnyContent}
-            className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+            title={!hasAnyContent ? 'Add some details before downloading.' : 'Download print-ready PDF'}
+            className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
           >
             <DownloadIcon className={`w-3.5 h-3.5 ${isExporting ? 'animate-bounce' : ''}`} />
             {isExporting ? 'Generating PDF...' : 'Download PDF'}

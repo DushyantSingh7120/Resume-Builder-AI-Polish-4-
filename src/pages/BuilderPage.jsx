@@ -91,8 +91,38 @@ export default function BuilderPage({ currentUser }) {
     }
   }
 
+  // Check if resume contains real content
+  const hasContactInfo =
+    resumeData.personalInfo?.email?.trim() ||
+    resumeData.personalInfo?.phone?.trim() ||
+    resumeData.personalInfo?.location?.trim()
+
+  const hasExperience = Array.isArray(resumeData.experience) && resumeData.experience.some(
+    (exp) => exp.company?.trim() || exp.role?.trim() || exp.description?.trim()
+  )
+
+  const hasEducation = Array.isArray(resumeData.education) && resumeData.education.some(
+    (edu) => edu.institution?.trim() || edu.degree?.trim()
+  )
+
+  const hasSkills = Array.isArray(resumeData.skills) && resumeData.skills.some((s) => s && s.trim())
+
+  const hasAnyContent = Boolean(
+    resumeData.personalInfo?.name?.trim() ||
+    hasContactInfo ||
+    resumeData.personalInfo?.summary?.trim() ||
+    hasExperience ||
+    hasEducation ||
+    hasSkills
+  )
+
   // Export PDF
   const handleExportPDF = async () => {
+    if (!hasAnyContent) {
+      toast.error('Add some details before downloading.')
+      return
+    }
+
     setIsExporting(true)
     try {
       await exportResumeToPDF('resume-document-preview', resumeData.personalInfo?.name)
@@ -130,6 +160,7 @@ export default function BuilderPage({ currentUser }) {
         isSaving={isSaving}
         onExportPDF={handleExportPDF}
         isExporting={isExporting}
+        isExportDisabled={!hasAnyContent}
       />
 
       {/* Optional First-Run Feature Discovery Callout */}

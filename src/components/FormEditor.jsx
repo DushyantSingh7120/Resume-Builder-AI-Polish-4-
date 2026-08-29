@@ -23,13 +23,24 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
   const [newSkill, setNewSkill] = useState('')
   const [polishingSection, setPolishingSection] = useState(null) // null | 'summary' | 'skills' | `exp-${id}` | 'experience-all'
   const [isSendingVerification, setIsSendingVerification] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
   const activeProvider = resumeData.aiProvider || 'default'
 
   // Gate Default (Gemini) provider specifically for unverified users
   const isDefaultGated = activeProvider === 'default' && (!currentUser || !currentUser.emailVerified)
 
+  // 30-second cooldown countdown timer
+  React.useEffect(() => {
+    if (resendCooldown <= 0) return
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [resendCooldown])
+
   // Resend verification email handler
   const handleResendVerification = async () => {
+    if (resendCooldown > 0 || isSendingVerification) return
     if (!auth.currentUser) {
       toast.error('Session expired. Please sign in again.')
       return
@@ -37,11 +48,13 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     setIsSendingVerification(true)
     try {
       await sendEmailVerification(auth.currentUser)
+      setResendCooldown(30)
       toast.success(`Verification link sent to ${auth.currentUser.email}! Check your spam/promotions folder.`)
     } catch (err) {
       console.error('Error sending verification email:', err)
       if (err.code === 'auth/too-many-requests') {
-        toast.error('Too many requests. Please wait a moment before trying again.')
+        setResendCooldown(30)
+        toast.error('Too many requests. Please wait 30 seconds before trying again.')
       } else {
         toast.error('Could not send verification email. Please try again.')
       }
@@ -305,10 +318,10 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
               <button
                 type="button"
                 onClick={handleResendVerification}
-                disabled={isSendingVerification}
-                className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                disabled={isSendingVerification || resendCooldown > 0}
+                className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSendingVerification ? 'Sending link...' : 'Resend verification email'}
+                {isSendingVerification ? 'Sending link...' : resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend verification email'}
               </button>
             </p>
           )}
@@ -365,10 +378,10 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
                 <button
                   type="button"
                   onClick={handleResendVerification}
-                  disabled={isSendingVerification}
-                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                  disabled={isSendingVerification || resendCooldown > 0}
+                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSendingVerification ? 'Sending...' : 'Resend verification email'}
+                  {isSendingVerification ? 'Sending...' : resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend verification email'}
                 </button>
               </span>
             )}
@@ -462,10 +475,10 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
                 <button
                   type="button"
                   onClick={handleResendVerification}
-                  disabled={isSendingVerification}
-                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                  disabled={isSendingVerification || resendCooldown > 0}
+                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSendingVerification ? 'Sending...' : 'Resend verification email'}
+                  {isSendingVerification ? 'Sending...' : resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend verification email'}
                 </button>
               </span>
             )}
@@ -701,10 +714,10 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
                 <button
                   type="button"
                   onClick={handleResendVerification}
-                  disabled={isSendingVerification}
-                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50"
+                  disabled={isSendingVerification || resendCooldown > 0}
+                  className="underline hover:text-amber-900 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSendingVerification ? 'Sending...' : 'Resend verification email'}
+                  {isSendingVerification ? 'Sending...' : resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend verification email'}
                 </button>
               </span>
             )}

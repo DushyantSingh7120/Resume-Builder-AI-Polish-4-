@@ -11,7 +11,8 @@ export default function Header({
   onSignOut,
   isSaving,
   onExportPDF,
-  isExporting
+  isExporting,
+  isExportDisabled = false
 }) {
   return (
     <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-8 h-16 shrink-0 flex items-center justify-between z-20">
@@ -73,8 +74,9 @@ export default function Header({
         <button
           type="button"
           onClick={onExportPDF}
-          disabled={isExporting}
-          className="hidden sm:inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-60 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shadow-xs cursor-pointer"
+          disabled={isExporting || isExportDisabled}
+          title={isExportDisabled ? 'Add some details before downloading.' : 'Download print-ready PDF'}
+          className="hidden sm:inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shadow-xs cursor-pointer"
         >
           <DownloadIcon className={`w-3.5 h-3.5 ${isExporting ? 'animate-bounce' : ''}`} />
           {isExporting ? 'Exporting PDF...' : 'Download PDF'}
