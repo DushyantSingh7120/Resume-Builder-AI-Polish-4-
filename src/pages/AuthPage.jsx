@@ -11,6 +11,7 @@ import {
 import { auth } from '../config/firebase'
 import { toast } from 'sonner'
 import { FileTextIcon, SparklesIcon, UserIcon } from '../components/Icons'
+import Footer from '../components/Footer'
 
 export default function AuthPage({ isSignUp = false }) {
   const navigate = useNavigate()
@@ -21,7 +22,7 @@ export default function AuthPage({ isSignUp = false }) {
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Handle Google Sign-in
+  // Handle Google Sign-in (Auto-verified, redirects to "/")
   const handleGoogleSignIn = async () => {
     setErrorMsg('')
     setGoogleLoading(true)
@@ -29,7 +30,7 @@ export default function AuthPage({ isSignUp = false }) {
       const provider = new GoogleAuthProvider()
       await signInWithPopup(auth, provider)
       toast.success('Signed in with Google!')
-      navigate('/app')
+      navigate('/')
     } catch (err) {
       console.error('Google auth error:', err)
       if (err.code !== 'auth/popup-closed-by-user') {
@@ -77,23 +78,20 @@ export default function AuthPage({ isSignUp = false }) {
 
     try {
       if (isSignUp) {
+        // Sign Up Flow -> Send verification email and redirect to /verify-email
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         try {
           await sendEmailVerification(userCredential.user)
         } catch (verifyErr) {
           console.warn('sendEmailVerification notice:', verifyErr)
         }
-        toast.success(`Account created! Please check ${email} to verify your account.`)
+        toast.success(`Account created! Please verify your email.`)
         navigate('/verify-email')
       } else {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        // Sign In Flow -> Redirect to "/"
+        await signInWithEmailAndPassword(auth, email, password)
         toast.success('Signed in successfully!')
-        if (userCredential.user && !userCredential.user.emailVerified) {
-          // If unverified, route to verify screen or allow continue to app
-          navigate('/verify-email')
-        } else {
-          navigate('/app')
-        }
+        navigate('/')
       }
     } catch (err) {
       console.error('Auth error:', err)
@@ -166,7 +164,7 @@ export default function AuthPage({ isSignUp = false }) {
             </div>
           )}
 
-          {/* Google Sign In Option (when not in forgot password mode) */}
+          {/* Google Sign In Option */}
           {!isForgotPassword && (
             <div className="space-y-4">
               <button
@@ -313,6 +311,9 @@ export default function AuthPage({ isSignUp = false }) {
           )}
         </div>
       </main>
+
+      {/* Real Footer with Credit & Links */}
+      <Footer />
     </div>
   )
 }

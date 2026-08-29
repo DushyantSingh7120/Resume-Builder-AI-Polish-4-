@@ -1,5 +1,6 @@
 import React from 'react'
 import { FileTextIcon, SparklesIcon } from './Icons'
+import Footer from './Footer'
 
 export default function NotFound({ onReturnHome }) {
   const handleGoHome = () => {
@@ -56,6 +57,9 @@ export default function NotFound({ onReturnHome }) {
           </button>
         </div>
       </main>
+
+      {/* Global Footer with Credit & Links */}
+      <Footer />
     </div>
   )
 }

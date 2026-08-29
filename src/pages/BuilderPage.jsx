@@ -14,6 +14,7 @@ import Header from '../components/Header'
 import FormEditor from '../components/FormEditor'
 import ResumePreview from '../components/ResumePreview'
 import ResumeSkeleton from '../components/ResumeSkeleton'
+import Footer from '../components/Footer'
 import { SparklesIcon, CloseIcon } from '../components/Icons'
 
 export default function BuilderPage({ currentUser }) {
@@ -199,6 +200,9 @@ export default function BuilderPage({ currentUser }) {
           </>
         )}
       </main>
+
+      {/* Global Footer with Credit & Links */}
+      <Footer />
     </div>
   )
 }

@@ -70,14 +70,14 @@ export default function App() {
       <Toaster richColors position="top-right" />
       <Routes>
         {/* Public Landing Page */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage currentUser={currentUser} />} />
 
         {/* Dedicated Auth Screens */}
         <Route
           path="/login"
           element={
             !isAuthLoading && currentUser ? (
-              <Navigate to="/app" replace />
+              <Navigate to="/" replace />
             ) : (
               <AuthPage isSignUp={false} />
             )
@@ -87,7 +87,7 @@ export default function App() {
           path="/signup"
           element={
             !isAuthLoading && currentUser ? (
-              <Navigate to="/app" replace />
+              <Navigate to="/" replace />
             ) : (
               <AuthPage isSignUp={true} />
             )

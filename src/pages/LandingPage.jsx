@@ -1,13 +1,31 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { signOut } from 'firebase/auth'
+import { auth } from '../config/firebase'
+import { clearPuterSession } from '../services/puterService'
+import { toast } from 'sonner'
 import { FileTextIcon, SparklesIcon, DownloadIcon, EyeIcon, UserIcon } from '../components/Icons'
+import Footer from '../components/Footer'
 
-export default function LandingPage() {
+export default function LandingPage({ currentUser }) {
+
+  // Sign out handler
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth)
+      clearPuterSession()
+      toast.success('Signed out successfully.')
+    } catch (err) {
+      console.error('Sign out error:', err)
+      toast.error('Failed to sign out.')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans">
       {/* Top Navigation */}
       <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-8 h-16 shrink-0 flex items-center justify-between z-20">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
           <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs">
             <FileTextIcon className="w-4 h-4" />
           </div>
@@ -18,22 +36,47 @@ export default function LandingPage() {
               AI Polish
             </span>
           </div>
-        </div>
+        </Link>
 
-        <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] px-3 py-1.5 rounded-lg transition-colors"
-          >
-            Log In
-          </Link>
-          <Link
-            to="/signup"
-            className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-xs"
-          >
-            Get Started
-          </Link>
-        </div>
+        {/* Top-Right Nav Area */}
+        {currentUser ? (
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-xs font-semibold text-[#0F172A] truncate max-w-[150px]">
+                {currentUser.email}
+              </span>
+              <span className="text-[10px] text-[#64748B]">Signed in</span>
+            </div>
+            <Link
+              to="/app"
+              className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors shadow-xs"
+            >
+              Resume Workspace →
+            </Link>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="text-xs font-medium text-[#64748B] hover:text-red-600 px-2.5 py-1.5 rounded hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Log In
+            </Link>
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-xs"
+            >
+              Get Started
+            </Link>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -52,21 +95,39 @@ export default function LandingPage() {
           </p>
         </div>
 
+        {/* Dynamic CTA buttons based on auth state */}
         <div className="flex flex-col sm:flex-row items-center gap-3.5 pt-2">
-          <Link
-            to="/signup"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#115E59] text-white font-semibold px-7 py-3 rounded-xl transition-all shadow-sm hover:shadow-md text-sm cursor-pointer"
-          >
-            Get Started Free
-            <SparklesIcon className="w-4 h-4" />
-          </Link>
-          <Link
-            to="/login"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white border border-[#CBD5E1] hover:border-[#0F766E] text-[#0F172A] font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-2xs cursor-pointer"
-          >
-            <UserIcon className="w-4 h-4 text-[#64748B]" />
-            Sign in to Existing Resume
-          </Link>
+          {currentUser ? (
+            <>
+              <Link
+                to="/app"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#115E59] text-white font-semibold px-7 py-3 rounded-xl transition-all shadow-sm hover:shadow-md text-sm cursor-pointer"
+              >
+                Continue to Your Resume
+                <FileTextIcon className="w-4 h-4" />
+              </Link>
+              <span className="text-xs text-[#64748B]">
+                Signed in as <strong className="text-[#0F172A]">{currentUser.email}</strong>
+              </span>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#115E59] text-white font-semibold px-7 py-3 rounded-xl transition-all shadow-sm hover:shadow-md text-sm cursor-pointer"
+              >
+                Get Started Free
+                <SparklesIcon className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/login"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white border border-[#CBD5E1] hover:border-[#0F766E] text-[#0F172A] font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-2xs cursor-pointer"
+              >
+                <UserIcon className="w-4 h-4 text-[#64748B]" />
+                Sign in to Existing Resume
+              </Link>
+            </>
+          )}
         </div>
 
         {/* 3 Core Feature Highlights */}
@@ -106,10 +167,8 @@ export default function LandingPage() {
         </div>
       </main>
 
-      {/* Simple Footer */}
-      <footer className="border-t border-[#E2E8F0] bg-white py-6 text-center text-xs text-[#94A3B8]">
-        <p>© 2026 ResumeBuilder + AI Polish. Zero paywalls, privacy first.</p>
-      </footer>
+      {/* Real Footer with Credit & Links */}
+      <Footer />
     </div>
   )
 }

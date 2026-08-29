@@ -1,14 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { toast } from 'sonner'
 import { FileTextIcon, SparklesIcon, MailIcon } from '../components/Icons'
+import Footer from '../components/Footer'
 
 export default function VerifyEmailPage({ currentUser, setCurrentUser }) {
   const navigate = useNavigate()
   const [isSending, setIsSending] = useState(false)
   const [isChecking, setIsChecking] = useState(false)
+
+  // If the user is already verified, bypass this screen immediately and go to "/"
+  useEffect(() => {
+    if (currentUser?.emailVerified) {
+      navigate('/', { replace: true })
+    }
+  }, [currentUser, navigate])
 
   // Resend verification email
   const handleResend = async () => {
@@ -34,7 +42,7 @@ export default function VerifyEmailPage({ currentUser, setCurrentUser }) {
     }
   }
 
-  // Check verification status
+  // Check verification status & redirect to "/"
   const handleCheckStatus = async () => {
     if (!auth.currentUser) {
       navigate('/login')
@@ -47,7 +55,7 @@ export default function VerifyEmailPage({ currentUser, setCurrentUser }) {
       if (auth.currentUser.emailVerified) {
         if (setCurrentUser) setCurrentUser({ ...auth.currentUser })
         toast.success('Email verified successfully! Full AI Polish is unlocked.')
-        navigate('/app')
+        navigate('/')
       } else {
         toast.info('Email is not verified yet. Please check your inbox and spam folder.')
       }
@@ -131,7 +139,7 @@ export default function VerifyEmailPage({ currentUser, setCurrentUser }) {
               disabled={isChecking}
               className="w-full bg-[#0F766E] hover:bg-[#115E59] text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-xs cursor-pointer disabled:opacity-60"
             >
-              {isChecking ? 'Checking status...' : "I've Verified My Email"}
+              {isChecking ? 'Checking status...' : "I've verified — check again"}
             </button>
 
             <button
@@ -156,6 +164,9 @@ export default function VerifyEmailPage({ currentUser, setCurrentUser }) {
           </div>
         </div>
       </main>
+
+      {/* Real Footer with Credit & Links */}
+      <Footer />
     </div>
   )
 }
