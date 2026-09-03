@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { toast } from 'sonner'
-import { FileTextIcon, SparklesIcon, MailIcon } from '../components/Icons'
+import { FileTextIcon, SparklesIcon, MailIcon, GitHubIcon, LinkedInIcon } from '../components/Icons'
 import Footer from '../components/Footer'
 
 export default function VerifyEmailPage({ currentUser, setCurrentUser, isAuthLoading = false }) {
@@ -83,21 +83,48 @@ export default function VerifyEmailPage({ currentUser, setCurrentUser, isAuthLoa
   const userEmail = currentUser?.email || auth.currentUser?.email || 'your email'
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans">
+    <div className="min-h-screen md:h-screen w-full max-w-full overflow-x-hidden md:overflow-hidden bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-between font-sans">
       {/* Header */}
       <header className="bg-white border-b border-[#E2E8F0] px-3 sm:px-4 md:px-8 h-16 shrink-0 flex items-center justify-between w-full max-w-full">
-        <Link to="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity min-w-0 shrink">
-          <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs shrink-0">
-            <FileTextIcon className="w-4 h-4" />
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 hover:opacity-90 transition-opacity min-w-0 shrink">
+            <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs shrink-0">
+              <FileTextIcon className="w-4 h-4" />
+            </div>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 truncate">
+              <span className="font-sans font-bold text-base sm:text-lg text-[#0F172A] tracking-tight">ResumeBuilder</span>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
+                <SparklesIcon className="w-3 h-3" />
+                AI Polish
+              </span>
+            </div>
+          </Link>
+
+          {/* Discoverable GitHub and LinkedIn icon buttons beside logo */}
+          <div className="flex items-center gap-0.5 sm:gap-1 pl-1.5 sm:pl-2.5 border-l border-[#E2E8F0] shrink-0">
+            <a
+              href="https://github.com/DushyantSingh7120/Resume-Builder-AI-Polish-4-"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="GitHub Repository"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
+              aria-label="GitHub Repository"
+            >
+              <GitHubIcon className="w-4 h-4" />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/dushyant-singh-764235332"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="LinkedIn Profile"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#0A66C2] hover:bg-[#EFF6FF] transition-colors"
+              aria-label="LinkedIn Profile"
+            >
+              <LinkedInIcon className="w-4 h-4" />
+            </a>
           </div>
-          <div className="flex items-baseline gap-1.5 sm:gap-2 truncate">
-            <span className="font-sans font-bold text-base sm:text-lg text-[#0F172A] tracking-tight">ResumeBuilder</span>
-            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
-              <SparklesIcon className="w-3 h-3" />
-              AI Polish
-            </span>
-          </div>
-        </Link>
+        </div>
+
         <button
           type="button"
           onClick={handleSignOut}
@@ -108,10 +135,10 @@ export default function VerifyEmailPage({ currentUser, setCurrentUser, isAuthLoa
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-lg bg-white rounded-2xl shadow-xs border border-[#E2E8F0] p-6 sm:p-8 text-center space-y-6">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700">
-            <MailIcon className="w-7 h-7" />
+      <main className="flex-1 flex items-center justify-center p-3 sm:p-4">
+        <div className="w-full max-w-lg bg-white rounded-2xl shadow-xs border border-[#E2E8F0] p-5 sm:p-6 text-center space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700">
+            <MailIcon className="w-6 h-6" />
           </div>
 
           <div className="space-y-2">

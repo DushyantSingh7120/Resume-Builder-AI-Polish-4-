@@ -10,7 +10,7 @@ import {
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { toast } from 'sonner'
-import { FileTextIcon, SparklesIcon, UserIcon } from '../components/Icons'
+import { FileTextIcon, SparklesIcon, UserIcon, GitHubIcon, LinkedInIcon } from '../components/Icons'
 import Footer from '../components/Footer'
 
 export default function AuthPage({ isSignUp = false, currentUser = null, isAuthLoading = false }) {
@@ -19,47 +19,46 @@ export default function AuthPage({ isSignUp = false, currentUser = null, isAuthL
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-  const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
 
-  // Redirect away if already authenticated
+  // Redirect if user is already authenticated
   React.useEffect(() => {
     if (!isAuthLoading && currentUser) {
-      if (isSignUp && !currentUser.emailVerified) {
-        navigate('/verify-email', { replace: true })
-      } else {
-        navigate('/', { replace: true })
-      }
+      navigate('/app', { replace: true })
     }
-  }, [currentUser, isAuthLoading, isSignUp, navigate])
+  }, [currentUser, isAuthLoading, navigate])
 
-  // Handle Google Sign-in (Auto-verified, redirects to "/")
+  // Google OAuth Popup Sign-In
   const handleGoogleSignIn = async () => {
     setErrorMsg('')
     setGoogleLoading(true)
     try {
       const provider = new GoogleAuthProvider()
-      await signInWithPopup(auth, provider)
-      toast.success('Signed in with Google!')
-      navigate('/')
+      const result = await signInWithPopup(auth, provider)
+      toast.success(`Welcome, ${result.user.displayName || result.user.email}!`)
+      navigate('/app')
     } catch (err) {
-      console.error('Google auth error:', err)
-      if (err.code !== 'auth/popup-closed-by-user') {
-        const msg = err.message || 'Google sign-in failed. Please try again.'
-        setErrorMsg(msg)
-        toast.error(msg)
+      console.error('Google sign-in error:', err)
+      if (err.code === 'auth/popup-closed-by-user') {
+        return
       }
+      let message = 'Google sign-in failed. Please try again.'
+      if (err.code === 'auth/network-request-failed') {
+        message = 'Network error. Please check your internet connection.'
+      }
+      setErrorMsg(message)
+      toast.error(message)
     } finally {
       setGoogleLoading(false)
     }
   }
 
-  // Handle Forgot Password
+  // Password reset submit handler
   const handleForgotPassword = async (e) => {
     e.preventDefault()
-    if (!email.trim()) {
-      setErrorMsg('Please enter your email address to reset password.')
-      toast.error('Please enter your email address.')
+    if (!email) {
+      setErrorMsg('Please enter your email address to reset your password.')
       return
     }
 
@@ -67,21 +66,24 @@ export default function AuthPage({ isSignUp = false, currentUser = null, isAuthL
     setErrorMsg('')
     try {
       await sendPasswordResetEmail(auth, email)
-      toast.success(`Password reset link sent to ${email}. Check your inbox or spam folder.`)
+      toast.success('Password reset link sent! Check your inbox.')
       setIsForgotPassword(false)
     } catch (err) {
       console.error('Password reset error:', err)
-      let msg = 'Could not send reset email. Please verify your email address.'
-      if (err.code === 'auth/user-not-found') msg = 'No account found with this email.'
-      if (err.code === 'auth/invalid-email') msg = 'Invalid email address.'
-      setErrorMsg(msg)
-      toast.error(msg)
+      let message = 'Failed to send password reset email. Please try again.'
+      if (err.code === 'auth/user-not-found') {
+        message = 'No account found with this email address.'
+      } else if (err.code === 'auth/invalid-email') {
+        message = 'Invalid email address format.'
+      }
+      setErrorMsg(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
   }
 
-  // Handle standard Email/Password Submit
+  // Email/Password Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErrorMsg('')
@@ -89,34 +91,49 @@ export default function AuthPage({ isSignUp = false, currentUser = null, isAuthL
 
     try {
       if (isSignUp) {
-        // Sign Up Flow -> Send verification email and redirect to /verify-email
+        // Register new user account
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-        try {
-          await sendEmailVerification(userCredential.user)
-        } catch (verifyErr) {
-          console.warn('sendEmailVerification notice:', verifyErr)
-        }
-        toast.success(`Account created! Please verify your email.`)
-        navigate('/verify-email')
+        // Send email verification link
+        await sendEmailVerification(userCredential.user)
+        toast.success('Account created! A verification email has been sent to your inbox.')
+        navigate('/app')
       } else {
-        // Sign In Flow -> Redirect to "/"
+        // Existing user sign in
         await signInWithEmailAndPassword(auth, email, password)
-        toast.success('Signed in successfully!')
-        navigate('/')
+        toast.success('Welcome back!')
+        navigate('/app')
       }
     } catch (err) {
       console.error('Auth error:', err)
-      let message = 'Authentication failed. Please check your credentials.'
-      if (err.code === 'auth/invalid-email') message = 'Invalid email address.'
-      if (
-        err.code === 'auth/user-not-found' ||
-        err.code === 'auth/wrong-password' ||
-        err.code === 'auth/invalid-credential'
-      ) {
-        message = 'Invalid email or password.'
+      let message
+
+      switch (err.code) {
+        case 'auth/user-not-found':
+          message = 'No account found with this email. Please check your email or sign up.'
+          break
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          message = 'Incorrect email or password. Please try again.'
+          break
+        case 'auth/email-already-in-use':
+          message = 'An account already exists with this email. Please log in instead.'
+          break
+        case 'auth/weak-password':
+          message = 'Password is too weak. Please use at least 6 characters.'
+          break
+        case 'auth/invalid-email':
+          message = 'Please enter a valid email address.'
+          break
+        case 'auth/too-many-requests':
+          message = 'Too many unsuccessful attempts. Please wait a few moments and try again.'
+          break
+        case 'auth/network-request-failed':
+          message = 'Network error. Please check your internet connection.'
+          break
+        default:
+          message = err.message || 'Authentication failed. Please try again.'
       }
-      if (err.code === 'auth/email-already-in-use') message = 'An account with this email already exists.'
-      if (err.code === 'auth/weak-password') message = 'Password must be at least 6 characters.'
+
       setErrorMsg(message)
       toast.error(message)
     } finally {
@@ -125,35 +142,62 @@ export default function AuthPage({ isSignUp = false, currentUser = null, isAuthL
   }
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans">
+    <div className="min-h-screen md:h-screen w-full max-w-full overflow-x-hidden md:overflow-hidden bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-between font-sans">
       {/* Top Header Bar */}
       <header className="bg-white border-b border-[#E2E8F0] px-3 sm:px-4 md:px-8 h-16 shrink-0 flex items-center justify-between w-full max-w-full">
-        <Link to="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity min-w-0 shrink">
-          <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs shrink-0">
-            <FileTextIcon className="w-4 h-4" />
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 hover:opacity-90 transition-opacity min-w-0 shrink">
+            <div className="w-8 h-8 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shadow-xs shrink-0">
+              <FileTextIcon className="w-4 h-4" />
+            </div>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 truncate">
+              <span className="font-sans font-bold text-base sm:text-lg text-[#0F172A] tracking-tight">ResumeBuilder</span>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
+                <SparklesIcon className="w-3 h-3" />
+                AI Polish
+              </span>
+            </div>
+          </Link>
+
+          {/* Discoverable GitHub and LinkedIn icon buttons beside logo */}
+          <div className="flex items-center gap-0.5 sm:gap-1 pl-1.5 sm:pl-2.5 border-l border-[#E2E8F0] shrink-0">
+            <a
+              href="https://github.com/DushyantSingh7120/Resume-Builder-AI-Polish-4-"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="GitHub Repository"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
+              aria-label="GitHub Repository"
+            >
+              <GitHubIcon className="w-4 h-4" />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/dushyant-singh-764235332"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="LinkedIn Profile"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#0A66C2] hover:bg-[#EFF6FF] transition-colors"
+              aria-label="LinkedIn Profile"
+            >
+              <LinkedInIcon className="w-4 h-4" />
+            </a>
           </div>
-          <div className="flex items-baseline gap-1.5 sm:gap-2 truncate">
-            <span className="font-sans font-bold text-base sm:text-lg text-[#0F172A] tracking-tight">ResumeBuilder</span>
-            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
-              <SparklesIcon className="w-3 h-3" />
-              AI Polish
-            </span>
-          </div>
-        </Link>
+        </div>
+
         <Link to="/" className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors shrink-0">
           ← Back to home
         </Link>
       </header>
 
       {/* Auth Form Card */}
-      <main className="flex-1 flex items-center justify-center p-3 sm:p-6 w-full max-w-full box-border">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xs border border-[#E2E8F0] p-6 sm:p-8">
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F766E] bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100 mb-2.5">
+      <main className="flex-1 flex items-center justify-center p-3 sm:p-4 w-full max-w-full box-border">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xs border border-[#E2E8F0] p-5 sm:p-7">
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F766E] bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100 mb-2">
               <UserIcon className="w-3.5 h-3.5" />
               {isForgotPassword ? 'Password Recovery' : isSignUp ? 'Create New Account' : 'Account Access'}
             </div>
-            <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight">
               {isForgotPassword
                 ? 'Reset your password'
                 : isSignUp
@@ -170,7 +214,7 @@ export default function AuthPage({ isSignUp = false, currentUser = null, isAuthL
           </div>
 
           {errorMsg && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg animate-in fade-in duration-150">
+            <div className="mb-3 p-2.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg animate-in fade-in duration-150">
               {errorMsg}
             </div>
           )}
