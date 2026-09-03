@@ -97,26 +97,13 @@ Most online resume builders trap candidates in frustrating workflows:
 
 ```mermaid
 flowchart LR
-    A[User Input] --> B[Form Editor]
-    B --> C[Debounced Local Draft Sync]
-    B --> D[Live Real-Time Preview]
-    
-    B --> E[AI Polish Request]
-    E --> F{Engine Selection}
-    F -->|Default| G[Vercel /api/polish Proxy]
-    G --> H[Gemini 2.5 Flash]
-    F -->|BYO Account| I[Puter.js SDK]
-    
-    H --> J[Polished Text with Undo]
-    I --> J
-    J --> B
-    
-    B --> K[Save to Firestore]
-    
-    D --> L{Export Mode}
-    L -->|ATS Vector| M[window.print Vector PDF]
-    L -->|Visual Clone| N[html2pdf.js Canvas PDF]
+    A[1. Fill Details] --> B[2. Live Preview] --> C[3. AI Polish] --> D[4. Export PDF]
 ```
+
+- **1. Fill Details:** Enter your profile, work experience, education, and skills with debounced local autosave.
+- **2. Live Preview:** Instant typographic formatting side-by-side as you type in real time.
+- **3. AI Polish:** Rephrase bullets and summaries with Gemini 2.5 Flash or Puter.js with 1-click Undo.
+- **4. Export PDF:** Download as an ATS-compliant vector PDF or visual canvas copy.
 
 ---
 
