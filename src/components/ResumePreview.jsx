@@ -18,7 +18,7 @@ function formatDate(dateStr) {
   }
 }
 
-export default function ResumePreview({ resumeData, onExportPDF, isExporting }) {
+export default function ResumePreview({ resumeData, onExportPDF, isExporting, onPrintVectorPDF }) {
   const { personalInfo = {}, experience = [], education = [], skills = [], aiProvider = 'default' } = resumeData || {}
 
   // Filter out ghost / empty entries
@@ -61,6 +61,18 @@ export default function ResumePreview({ resumeData, onExportPDF, isExporting }) 
             <span className="hidden lg:inline-block text-[11px] text-[#64748B] italic">
               Add some details before downloading.
             </span>
+          )}
+
+          {onPrintVectorPDF && (
+            <button
+              type="button"
+              onClick={onPrintVectorPDF}
+              disabled={!hasAnyContent}
+              title="Print or Save as Vector ATS-compliant PDF with real selectable text"
+              className="hidden sm:inline-flex items-center gap-1.5 bg-white border border-[#CBD5E1] hover:border-[#0F766E] text-[#0F172A] hover:text-[#0F766E] disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+            >
+              <span>Print / ATS PDF</span>
+            </button>
           )}
 
           <button

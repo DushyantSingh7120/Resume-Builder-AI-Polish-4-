@@ -3,27 +3,37 @@
  * Handles server-side Gemini AI calls, per-user daily rate limiting, and global quota error handling
  */
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash"
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash"
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "resume-builder-ai-45a31"
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || "AIzaSyBKzHPCq1okBQfMh8rIIhaJGynLiUlsa-I"
 const DAILY_POLISH_LIMIT = 30
+const MAX_PROMPT_CHARS = 6000
+
+const BASE_HONESTY_INSTRUCTION = `You are a professional resume editor.
+CRITICAL CONSTRAINT: You must ONLY rephrase and polish the provided text to sound professional, impactful, and concise.
+DO NOT invent, fabricate, or assume any facts, job titles, numbers, percentages, dates, tools, or achievements not present in the original text.
+Return ONLY the polished text with no preamble, explanations, markdown code blocks, or conversational filler.`
 
 /**
- * Check and increment daily rate limit in Firestore
+ * Check and increment daily rate limit in Firestore using authorized ID token
  * @param {string|null} userId 
+ * @param {string|null} idToken
  * @returns {Promise<{allowed: boolean, reason?: string, count?: number, limit?: number}>}
  */
-async function checkAndIncrementRateLimit(userId) {
+async function checkAndIncrementRateLimit(userId, idToken = null) {
   if (!userId) {
-    // Unauthenticated guest requests
     return { allowed: true }
   }
 
   const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
   const docUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${userId}?key=${FIREBASE_API_KEY}`
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+  }
 
   try {
-    const getRes = await fetch(docUrl)
+    const getRes = await fetch(docUrl, { headers })
     let currentCount = 0
     let lastDate = today
 
@@ -38,6 +48,11 @@ async function checkAndIncrementRateLimit(userId) {
       } else {
         currentCount = 0
       }
+    } else if (getRes.status === 404) {
+      currentCount = 0
+    } else {
+      const errText = await getRes.text().catch(() => '')
+      console.warn('[Rate Limiter Warning] Firestore read error:', getRes.status, errText)
     }
 
     if (currentCount >= DAILY_POLISH_LIMIT) {
@@ -53,9 +68,9 @@ async function checkAndIncrementRateLimit(userId) {
     const newCount = currentCount + 1
     const patchUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${userId}?updateMask.fieldPaths=dailyPolishCount&updateMask.fieldPaths=lastPolishDate&key=${FIREBASE_API_KEY}`
 
-    await fetch(patchUrl, {
+    const patchRes = await fetch(patchUrl, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         fields: {
           dailyPolishCount: { integerValue: String(newCount) },
@@ -63,6 +78,11 @@ async function checkAndIncrementRateLimit(userId) {
         }
       })
     })
+
+    if (!patchRes.ok) {
+      const patchErrText = await patchRes.text().catch(() => '')
+      console.warn('[Rate Limiter Warning] Firestore patch error:', patchRes.status, patchErrText)
+    }
 
     return { allowed: true, count: newCount, limit: DAILY_POLISH_LIMIT }
   } catch (err) {
@@ -135,6 +155,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing prompt in request body.' })
     }
 
+    if (prompt.length > MAX_PROMPT_CHARS) {
+      return res.status(400).json({
+        error: `Input is too long (${prompt.length} characters). Maximum allowed is ${MAX_PROMPT_CHARS} characters.`
+      })
+    }
+
     // 1. Enforce Server-Side Email Verification for Default (Gemini) provider
     const authCheck = await verifyUserEmail(idToken)
     if (!authCheck.verified) {
@@ -146,8 +172,8 @@ export default async function handler(req, res) {
 
     const effectiveUserId = authCheck.uid || userId
 
-    // 2. Enforce Server-Side Per-User Rate Limiting
-    const rateLimitCheck = await checkAndIncrementRateLimit(effectiveUserId)
+    // 2. Enforce Server-Side Per-User Rate Limiting (using authorized ID token)
+    const rateLimitCheck = await checkAndIncrementRateLimit(effectiveUserId, idToken)
     if (!rateLimitCheck.allowed && rateLimitCheck.reason === 'DAILY_LIMIT_EXCEEDED') {
       return res.status(429).json({
         error: 'DAILY_LIMIT_EXCEEDED',
@@ -156,30 +182,49 @@ export default async function handler(req, res) {
       })
     }
 
-    // 2. Call Google Gemini API
+    // 3. Call Google Gemini API with system_instruction and 8.5s timeout protection
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }]
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8500)
+
+    let response
+    try {
+      response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: BASE_HONESTY_INSTRUCTION }]
+          },
+          contents: [
+            {
+              parts: [{ text: prompt }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.25,
+            maxOutputTokens: 1024
           }
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 1024
-        }
+        })
       })
-    })
+    } catch (fetchErr) {
+      if (fetchErr.name === 'AbortError') {
+        return res.status(504).json({
+          error: 'AI request timed out. Please try again with a shorter section.'
+        })
+      }
+      throw fetchErr
+    } finally {
+      clearTimeout(timeoutId)
+    }
 
     const data = await response.json()
 
-    // 3. Handle Gemini's own 429 quota exhaustion specifically
+    // 4. Handle Gemini's own 429 quota exhaustion specifically
     if (
       response.status === 429 ||
       data?.error?.code === 429 ||

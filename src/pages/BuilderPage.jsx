@@ -27,7 +27,7 @@ export default function BuilderPage({ currentUser }) {
   const [lastSavedTime, setLastSavedTime] = useState(null)
   const [showFirstRunHint, setShowFirstRunHint] = useState(false)
 
-  // Load user resume on mount
+  // Load user resume on mount (Firestore + Local Draft Fallback)
   useEffect(() => {
     let isMounted = true
     const initUserData = async () => {
@@ -35,10 +35,23 @@ export default function BuilderPage({ currentUser }) {
       setIsDataLoading(true)
       try {
         const savedData = await loadResumeFromFirestore(currentUser.uid)
+        const draftRaw = localStorage.getItem(`resume_draft_${currentUser.uid}`)
+        let localDraft = null
+        if (draftRaw) {
+          try {
+            localDraft = JSON.parse(draftRaw)
+          } catch (e) {
+            console.warn('[Draft Restore Notice]: Invalid local draft JSON', e)
+          }
+        }
+
         if (isMounted) {
           if (savedData) {
             setResumeData(savedData)
             setLastSavedTime(new Date())
+          } else if (localDraft) {
+            setResumeData(localDraft)
+            toast.info('Restored your unsaved local draft.')
           } else {
             setResumeData(DEFAULT_EMPTY_RESUME)
           }
@@ -51,7 +64,19 @@ export default function BuilderPage({ currentUser }) {
         }
       } catch (err) {
         console.error('Error loading resume:', err)
-        toast.error('Could not load resume data from cloud.')
+        // Check if local draft is available during cloud error
+        const draftRaw = localStorage.getItem(`resume_draft_${currentUser.uid}`)
+        if (draftRaw) {
+          try {
+            setResumeData(JSON.parse(draftRaw))
+            toast.info('Loaded your local draft (cloud connection unavailable).')
+          } catch (draftErr) {
+            console.warn('[Draft Fallback Error]:', draftErr)
+            toast.error('Could not load resume data from cloud.')
+          }
+        } else {
+          toast.error('Could not load resume data from cloud.')
+        }
       } finally {
         if (isMounted) setIsDataLoading(false)
       }
@@ -62,6 +87,21 @@ export default function BuilderPage({ currentUser }) {
       isMounted = false
     }
   }, [currentUser])
+
+  // Continuous local draft backup to prevent accidental data loss
+  useEffect(() => {
+    if (!currentUser || isDataLoading) return
+    const draftKey = `resume_draft_${currentUser.uid}`
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(resumeData))
+      } catch (err) {
+        console.warn('[Draft Backup]:', err)
+      }
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [resumeData, currentUser, isDataLoading])
 
   // Dismiss First Run Hint
   const handleDismissHint = () => {
@@ -116,7 +156,7 @@ export default function BuilderPage({ currentUser }) {
     hasSkills
   )
 
-  // Export PDF
+  // Export PDF (html2pdf.js)
   const handleExportPDF = async () => {
     if (!hasAnyContent) {
       toast.error('Add some details before downloading.')
@@ -133,6 +173,15 @@ export default function BuilderPage({ currentUser }) {
     } finally {
       setIsExporting(false)
     }
+  }
+
+  // Print or Save as Vector ATS-compliant PDF
+  const handlePrintVectorPDF = () => {
+    if (!hasAnyContent) {
+      toast.error('Add some details before printing.')
+      return
+    }
+    window.print()
   }
 
   // Sign out handler
@@ -226,6 +275,7 @@ export default function BuilderPage({ currentUser }) {
                 resumeData={resumeData}
                 onExportPDF={handleExportPDF}
                 isExporting={isExporting}
+                onPrintVectorPDF={handlePrintVectorPDF}
               />
             </div>
           </>

@@ -134,7 +134,12 @@ Standardized Skills:`
 
   const result = await callGeminiAPI(prompt, userId)
   return result
-    .split(/[,,\n]/)
-    .map((s) => s.replace(/^[-•*]\s*/, '').trim())
-    .filter(Boolean)
+    .split(/[,;\n]/)
+    .map((s) => s.replace(/^[-•*\d.]+\s*/, '').trim())
+    .filter((s) => {
+      if (!s) return false
+      const lower = s.toLowerCase()
+      if (lower.startsWith('here ') || lower.startsWith('standardized') || lower.endsWith(':')) return false
+      return s.length > 0 && s.length < 50
+    })
 }

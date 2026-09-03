@@ -154,15 +154,19 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     }))
   }
 
-  // Skills handlers
+  // Skills handlers (supports comma/semicolon/enter separated inputs)
   const handleAddSkill = (e) => {
     if (e.key === 'Enter' || e.type === 'click') {
       e.preventDefault()
-      const trimmed = newSkill.trim()
-      if (trimmed && !resumeData.skills.includes(trimmed)) {
+      const items = newSkill
+        .split(/[,;\n]/)
+        .map((s) => s.trim())
+        .filter((s) => s && !resumeData.skills.includes(s))
+
+      if (items.length > 0) {
         setResumeData((prev) => ({
           ...prev,
-          skills: [...prev.skills, trimmed]
+          skills: [...prev.skills, ...items]
         }))
         setNewSkill('')
       }
@@ -176,16 +180,17 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     }))
   }
 
-  // AI Polish: Summary
+  // AI Polish: Summary (with Undo capability)
   const handlePolishSummary = async () => {
-    if (!resumeData.personalInfo.summary?.trim()) {
+    const originalSummary = resumeData.personalInfo.summary
+    if (!originalSummary?.trim()) {
       toast.error('Please enter a professional summary to polish.')
       return
     }
 
     setPolishingSection('summary')
     try {
-      const polished = await polishSummary(resumeData.personalInfo.summary, activeProvider, currentUser?.uid)
+      const polished = await polishSummary(originalSummary, activeProvider, currentUser?.uid)
       setResumeData((prev) => ({
         ...prev,
         personalInfo: {
@@ -193,7 +198,21 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
           summary: polished
         }
       }))
-      toast.success(`Professional summary polished with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
+      toast.success(`Professional summary polished with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`, {
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            setResumeData((prev) => ({
+              ...prev,
+              personalInfo: {
+                ...prev.personalInfo,
+                summary: originalSummary
+              }
+            }))
+            toast.info('Reverted summary to original text.')
+          }
+        }
+      })
     } catch (err) {
       console.error('Polish summary error:', err)
       toast.error(err.message || 'Failed to polish summary.')
@@ -202,9 +221,10 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     }
   }
 
-  // AI Polish: Specific Experience Entry
+  // AI Polish: Specific Experience Entry (with Undo capability)
   const handlePolishExperienceEntry = async (exp) => {
-    if (!exp.description?.trim()) {
+    const originalDescription = exp.description
+    if (!originalDescription?.trim()) {
       toast.error('Please enter a description for this role before polishing.')
       return
     }
@@ -213,14 +233,22 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     setPolishingSection(sectionKey)
     try {
       const polished = await polishExperienceDescription(
-        exp.description,
+        originalDescription,
         exp.role,
         exp.company,
         activeProvider,
         currentUser?.uid
       )
       handleExperienceChange(exp.id, 'description', polished)
-      toast.success(`Polished experience at ${exp.company || 'position'} with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
+      toast.success(`Polished experience at ${exp.company || 'position'} with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`, {
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            handleExperienceChange(exp.id, 'description', originalDescription)
+            toast.info('Reverted experience description.')
+          }
+        }
+      })
     } catch (err) {
       console.error('Polish experience error:', err)
       toast.error(err.message || 'Failed to polish experience.')
@@ -229,7 +257,7 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     }
   }
 
-  // AI Polish: All Experience Entries
+  // AI Polish: All Experience Entries (Sequential loop prevents 429 quota bursts)
   const handlePolishAllExperience = async () => {
     const entriesWithDesc = resumeData.experience.filter((e) => e.description?.trim())
     if (entriesWithDesc.length === 0) {
@@ -238,25 +266,52 @@ export default function FormEditor({ resumeData, setResumeData, currentUser }) {
     }
 
     setPolishingSection('experience-all')
+    const originalExperience = [...resumeData.experience]
     try {
-      const updatedExperience = await Promise.all(
-        resumeData.experience.map(async (exp) => {
-          if (!exp.description?.trim()) return exp
+      const workingExperience = [...resumeData.experience]
+      let successfulCount = 0
+
+      for (let i = 0; i < workingExperience.length; i++) {
+        const item = workingExperience[i]
+        if (!item.description?.trim()) continue
+
+        try {
           const polished = await polishExperienceDescription(
-            exp.description,
-            exp.role,
-            exp.company,
+            item.description,
+            item.role,
+            item.company,
             activeProvider,
             currentUser?.uid
           )
-          return { ...exp, description: polished }
+          workingExperience[i] = { ...item, description: polished }
+          successfulCount++
+
+          // Update state incrementally so user sees progress live
+          setResumeData((prev) => ({
+            ...prev,
+            experience: [...workingExperience]
+          }))
+        } catch (itemErr) {
+          console.warn(`Failed to polish experience entry #${i + 1}:`, itemErr)
+        }
+      }
+
+      if (successfulCount > 0) {
+        toast.success(`Polished ${successfulCount} experience entries with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`, {
+          action: {
+            label: 'Undo All',
+            onClick: () => {
+              setResumeData((prev) => ({
+                ...prev,
+                experience: originalExperience
+              }))
+              toast.info('Reverted experience entries to original text.')
+            }
+          }
         })
-      )
-      setResumeData((prev) => ({
-        ...prev,
-        experience: updatedExperience
-      }))
-      toast.success(`All experience entries polished with ${activeProvider === 'puter' ? 'Puter' : 'Gemini'}!`)
+      } else {
+        toast.error('Could not polish experience entries. Please check your network connection.')
+      }
     } catch (err) {
       console.error('Polish all experience error:', err)
       toast.error(err.message || 'Failed to polish work experience.')

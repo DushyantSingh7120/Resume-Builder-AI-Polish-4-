@@ -32,11 +32,14 @@ export async function ensurePuterAuth(uid = null) {
 
   const userKey = uid || 'guest'
 
-  // If this specific signed-in user has not completed Puter sign-in in this session, prompt them
-  if (activePuterSessionUid !== userKey) {
+  // Check if Puter already has an active signed-in session
+  const isAlreadySignedIn = typeof window.puter.auth?.isSignedIn === 'function' && window.puter.auth.isSignedIn()
+
+  // If not signed in or different user context, prompt sign-in
+  if (!isAlreadySignedIn && activePuterSessionUid !== userKey) {
     await window.puter.auth.signIn()
-    activePuterSessionUid = userKey
   }
+  activePuterSessionUid = userKey
 
   return true
 }
@@ -182,7 +185,12 @@ Standardized Skills:`
 
   const result = await callPuterAI(prompt, uid)
   return result
-    .split(/[,,\n]/)
-    .map((s) => s.replace(/^[-•*]\s*/, '').trim())
-    .filter(Boolean)
+    .split(/[,;\n]/)
+    .map((s) => s.replace(/^[-•*\d.]+\s*/, '').trim())
+    .filter((s) => {
+      if (!s) return false
+      const lower = s.toLowerCase()
+      if (lower.startsWith('here ') || lower.startsWith('standardized') || lower.endsWith(':')) return false
+      return s.length > 0 && s.length < 50
+    })
 }
