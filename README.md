@@ -95,15 +95,50 @@ Most online resume builders trap candidates in frustrating workflows:
 
 ## 🔄 Application Flow
 
+<div align="center">
+
+![Application Flow Diagram](public/application-flow.svg)
+
+</div>
+
+- **1. User Input & Form Editor:** Reactive state management with auto-split skill chips and instant local `localStorage` draft backup.
+- **2. Live Real-Time Preview:** Side-by-side typesetting that updates on every keystroke.
+- **3. Dual AI Polish Engines:**
+  - **Google Gemini 2.5 Flash:** Verified users receive 30 daily requests through a secure serverless proxy.
+  - **Puter.js SDK:** Client-side integration using your personal Puter account for quota-free flexibility.
+  - **Instant Undo:** Polished text can be reverted with one click via toast notification action.
+- **4. Dual PDF Export Options:**
+  - **ATS Vector PDF (`window.print`):** True searchable vector text via dedicated `@media print` styling.
+  - **Visual Replica (`html2pdf.js`):** Pixel-perfect canvas snapshot.
+- **5. Cloud Persistence:** Authenticated cloud synchronization with Google Cloud Firestore (`users/{uid}`).
+
+<details>
+<summary><b>View Mermaid Source Code</b></summary>
+
 ```mermaid
 flowchart LR
-    A[1. Fill Details] --> B[2. Live Preview] --> C[3. AI Polish] --> D[4. Export PDF]
+    A[User Input] --> B[Form Editor]
+    B --> C[Debounced Local Draft Sync]
+    B --> D[Live Real-Time Preview]
+    
+    B --> E[AI Polish Request]
+    E --> F{Engine Selection}
+    F -->|Default| G[Vercel /api/polish Proxy]
+    G --> H[Gemini 2.5 Flash]
+    F -->|BYO Account| I[Puter.js SDK]
+    
+    H --> J[Polished Text with Undo]
+    I --> J
+    J --> B
+    
+    B --> K[Save to Firestore]
+    
+    D --> L{Export Mode}
+    L -->|ATS Vector| M[window.print Vector PDF]
+    L -->|Visual Clone| N[html2pdf.js Canvas PDF]
 ```
 
-- **1. Fill Details:** Enter your profile, work experience, education, and skills with debounced local autosave.
-- **2. Live Preview:** Instant typographic formatting side-by-side as you type in real time.
-- **3. AI Polish:** Rephrase bullets and summaries with Gemini 2.5 Flash or Puter.js with 1-click Undo.
-- **4. Export PDF:** Download as an ATS-compliant vector PDF or visual canvas copy.
+</details>
 
 ---
 

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg-canvas { fill: #0B0F19; }
+      .card-bg { fill: #131B2E; stroke: #23304A; stroke-width: 1.5; }
+      .card-teal { fill: #0A2624; stroke: #0F766E; stroke-width: 1.5; }
+      .card-blue { fill: #0F2344; stroke: #2563EB; stroke-width: 1.5; }
+      .card-purple { fill: #20153D; stroke: #7C3AED; stroke-width: 1.5; }
+      .card-amber { fill: #281B07; stroke: #D97706; stroke-width: 1.5; }
+      .text-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #F1F5F9; }
+      .text-sub { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #94A3B8; }
+      .text-badge { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 10px; font-weight: 600; }
+      .line-main { stroke: #475569; stroke-width: 1.8; fill: none; }
+      .line-teal { stroke: #14B8A6; stroke-width: 1.8; fill: none; }
+      .line-blue { stroke: #3B82F6; stroke-width: 1.8; fill: none; }
+      .line-purple { stroke: #A855F7; stroke-width: 1.8; fill: none; }
+      .line-return { stroke: #10B981; stroke-width: 1.8; stroke-dasharray: 4 3; fill: none; }
+      .arrow { fill: #475569; }
+      .arrow-teal { fill: #14B8A6; }
+      .arrow-blue { fill: #3B82F6; }
+      .arrow-purple { fill: #A855F7; }
+      .arrow-return { fill: #10B981; }
+    </style>
+    
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 1.5 L 6 4 L 0 6.5 z" class="arrow" />
+    </marker>
+    <marker id="arrow-teal" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 1.5 L 6 4 L 0 6.5 z" class="arrow-teal" />
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 1.5 L 6 4 L 0 6.5 z" class="arrow-blue" />
+    </marker>
+    <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 1.5 L 6 4 L 0 6.5 z" class="arrow-purple" />
+    </marker>
+    <marker id="arrow-return" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 1.5 L 6 4 L 0 6.5 z" class="arrow-return" />
+    </marker>
+  </defs>
+
+  <!-- Container Canvas -->
+  <rect width="1020" height="450" rx="16" class="bg-canvas" />
+
+  <!-- Connectors -->
+  <!-- User Input -> Form Editor -->
+  <path d="M 140 215 L 180 215" class="line-main" marker-end="url(#arrow)" />
+
+  <!-- Form Editor -> Debounced Local Sync (Top) -->
+  <path d="M 270 175 L 270 65 L 360 65" class="line-teal" marker-end="url(#arrow-teal)" />
+
+  <!-- Form Editor -> Live Preview (Middle-Top) -->
+  <path d="M 330 200 L 360 200 L 360 145 L 370 145" class="line-blue" marker-end="url(#arrow-blue)" />
+
+  <!-- Live Preview -> ATS Vector PDF -->
+  <path d="M 540 135 L 590 135 L 590 110 L 620 110" class="line-blue" marker-end="url(#arrow-blue)" />
+
+  <!-- Live Preview -> Visual Clone PDF -->
+  <path d="M 540 155 L 590 155 L 590 175 L 620 175" class="line-blue" marker-end="url(#arrow-blue)" />
+
+  <!-- Form Editor -> AI Polish Request (Middle-Bottom) -->
+  <path d="M 330 230 L 360 230 L 360 270 L 370 270" class="line-purple" marker-end="url(#arrow-purple)" />
+
+  <!-- AI Polish -> Vercel / Gemini 2.5 -->
+  <path d="M 540 260 L 580 260 L 580 240 L 610 240" class="line-purple" marker-end="url(#arrow-purple)" />
+
+  <!-- AI Polish -> Puter.js SDK -->
+  <path d="M 540 280 L 580 280 L 580 305 L 610 305" class="line-purple" marker-end="url(#arrow-purple)" />
+
+  <!-- Gemini -> Polished Text -->
+  <path d="M 790 240 L 820 240 L 820 260 L 840 260" class="line-purple" marker-end="url(#arrow-purple)" />
+
+  <!-- Puter.js -> Polished Text -->
+  <path d="M 790 305 L 820 305 L 820 280 L 840 280" class="line-purple" marker-end="url(#arrow-purple)" />
+
+  <!-- Polished Text Return Loop -> Form Editor -->
+  <path d="M 925 310 L 925 410 L 260 410 L 260 255" class="line-return" marker-end="url(#arrow-return)" />
+
+  <!-- Form Editor -> Save to Firestore (Bottom) -->
+  <path d="M 290 255 L 290 355 L 370 355" class="line-teal" marker-end="url(#arrow-teal)" />
+
+  <!-- NODES -->
+  
+  <!-- 1. User Input -->
+  <rect x="25" y="185" width="115" height="60" rx="10" class="card-bg" />
+  <text x="82" y="212" text-anchor="middle" class="text-title">User Input</text>
+  <text x="82" y="230" text-anchor="middle" class="text-sub">Details &amp; Bullets</text>
+
+  <!-- 2. Form Editor (Center Hub) -->
+  <rect x="180" y="175" width="150" height="80" rx="12" class="card-teal" />
+  <text x="255" y="208" text-anchor="middle" class="text-title" fill="#2DD4BF">Form Editor</text>
+  <text x="255" y="226" text-anchor="middle" class="text-sub">Reactive State Hub</text>
+  <text x="255" y="242" text-anchor="middle" class="text-sub">Auto-Split Skill Chips</text>
+
+  <!-- 3. Debounced Local Draft Sync (Top) -->
+  <rect x="360" y="35" width="210" height="60" rx="10" class="card-bg" />
+  <text x="465" y="60" text-anchor="middle" class="text-title">Local Draft Sync</text>
+  <text x="465" y="78" text-anchor="middle" class="text-sub">Continuous localStorage (uid)</text>
+
+  <!-- 4. Live Real-Time Preview (Middle-Top) -->
+  <rect x="370" y="115" width="170" height="60" rx="10" class="card-blue" />
+  <text x="455" y="142" text-anchor="middle" class="text-title" fill="#60A5FA">Live Real-Time</text>
+  <text x="455" y="160" text-anchor="middle" class="text-title" fill="#60A5FA">Preview</text>
+
+  <!-- Export: ATS Vector PDF -->
+  <rect x="620" y="85" width="190" height="50" rx="8" class="card-bg" />
+  <text x="715" y="107" text-anchor="middle" class="text-title">window.print()</text>
+  <text x="715" y="124" text-anchor="middle" class="text-sub" fill="#38BDF8">ATS Vector PDF (Searchable)</text>
+
+  <!-- Export: Visual Clone PDF -->
+  <rect x="620" y="150" width="190" height="50" rx="8" class="card-bg" />
+  <text x="715" y="172" text-anchor="middle" class="text-title">html2pdf.js</text>
+  <text x="715" y="189" text-anchor="middle" class="text-sub">Visual Clone (Canvas Snapshot)</text>
+
+  <!-- 5. AI Polish Request (Middle-Bottom) -->
+  <rect x="370" y="240" width="170" height="60" rx="10" class="card-purple" />
+  <text x="455" y="267" text-anchor="middle" class="text-title" fill="#C084FC">AI Polish Request</text>
+  <text x="455" y="285" text-anchor="middle" class="text-sub">Summary &amp; Experience</text>
+
+  <!-- Engine: Gemini 2.5 Flash Proxy -->
+  <rect x="610" y="215" width="180" height="50" rx="8" class="card-bg" />
+  <text x="700" y="237" text-anchor="middle" class="text-title" fill="#C084FC">Gemini 2.5 Flash</text>
+  <text x="700" y="254" text-anchor="middle" class="text-sub">Serverless Proxy (30/day rate)</text>
+
+  <!-- Engine: Puter.js SDK -->
+  <rect x="610" y="280" width="180" height="50" rx="8" class="card-bg" />
+  <text x="700" y="302" text-anchor="middle" class="text-title" fill="#38BDF8">Puter.js SDK</text>
+  <text x="700" y="319" text-anchor="middle" class="text-sub">BYO Account (Unlimited)</text>
+
+  <!-- Result: Polished Text with Undo -->
+  <rect x="840" y="240" width="155" height="65" rx="10" class="card-teal" />
+  <text x="917" y="267" text-anchor="middle" class="text-title" fill="#34D399">Polished Output</text>
+  <text x="917" y="285" text-anchor="middle" class="text-sub">One-Click Undo Action</text>
+
+  <!-- 6. Save to Firestore (Bottom) -->
+  <rect x="370" y="325" width="200" height="60" rx="10" class="card-bg" />
+  <text x="470" y="352" text-anchor="middle" class="text-title" fill="#FBBF24">Cloud Firestore</text>
+  <text x="470" y="370" text-anchor="middle" class="text-sub">Authenticated users/{uid}</text>
+
+  <!-- Return loop annotation -->
+  <text x="600" y="402" text-anchor="middle" class="text-sub" fill="#10B981" font-weight="600">↺ Applied to Form Editor (with Instant Undo)</text>
+</svg>
