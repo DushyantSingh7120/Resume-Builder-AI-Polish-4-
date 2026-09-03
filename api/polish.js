@@ -3,7 +3,7 @@
  * Handles server-side Gemini AI calls, per-user daily rate limiting, and global quota error handling
  */
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash"
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "resume-builder-ai-45a31"
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || "AIzaSyBKzHPCq1okBQfMh8rIIhaJGynLiUlsa-I"
 const DAILY_POLISH_LIMIT = 30

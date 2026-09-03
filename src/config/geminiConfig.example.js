@@ -3,5 +3,5 @@
 
 export const GEMINI_CONFIG = {
   apiKey: "YOUR_GEMINI_API_KEY",
-  model: "gemini-2.5-flash"
+  model: "gemini-3.5-flash-lite"
 }

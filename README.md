@@ -10,7 +10,7 @@
 [![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Google Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-AI_Polish-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![Google Gemini](https://img.shields.io/badge/Gemini_3.5_Flash--Lite-AI_Polish-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth_%26_Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg?style=for-the-badge)](LICENSE)
 
@@ -57,7 +57,7 @@ Most online resume builders trap candidates in frustrating workflows:
 - Responsive mobile drawer preview for on-the-go editing.
 
 ### 🤖 Dual AI Polish Engines
-- **Default Engine (Google Gemini 2.5 Flash):** High-speed, professional tone enhancement executed through a secure serverless proxy. Verified users receive 30 free daily requests.
+- **Default Engine (Google Gemini 3.5 Flash-Lite):** High-speed, professional tone enhancement executed through a secure serverless proxy. Verified users receive 30 free daily requests with ultra-low token credit consumption.
 - **Alternative Engine (Puter.js):** Direct client-side AI integration powered by your personal Puter account for quota-free flexibility.
 - **Instant Undo Action:** Every polished summary or bullet point provides an immediate "Undo" notification action to revert back to your original phrasing with one click.
 - **Smart Delimiter Parsing:** Enter comma- or semicolon-separated skills and they automatically format into individual badges.
@@ -85,7 +85,7 @@ Most online resume builders trap candidates in frustrating workflows:
 | **Routing** | React Router v7 (`react-router-dom`) | Single-page application routing with auth route protection |
 | **Styling** | Tailwind CSS v4 | High-performance atomic styles with modern CSS tokens |
 | **State & Storage** | LocalStorage + Cloud Firestore | Instant local fallback + authenticated cross-device persistence |
-| **AI Polishing** | Google Gemini 2.5 Flash + Puter.js | Context-aware phrasing improvement with strict honesty bounds |
+| **AI Polishing** | Google Gemini 3.5 Flash-Lite + Puter.js | Context-aware phrasing improvement with strict honesty bounds |
 | **Serverless Backend**| Vercel Serverless Functions (`/api/polish`) | Secure proxy protecting Gemini API secrets and enforcing rate limits |
 | **Auth** | Firebase Authentication | Google OAuth popup & Email/Password session management |
 | **PDF Generation** | Native `@media print` + `html2pdf.js` | Dual vector ATS printing and visual DOM canvas export |
@@ -104,7 +104,7 @@ Most online resume builders trap candidates in frustrating workflows:
 - **1. User Input & Form Editor:** Reactive state management with auto-split skill chips and instant local `localStorage` draft backup.
 - **2. Live Real-Time Preview:** Side-by-side typesetting that updates on every keystroke.
 - **3. Dual AI Polish Engines:**
-  - **Google Gemini 2.5 Flash:** Verified users receive 30 daily requests through a secure serverless proxy.
+  - **Google Gemini 3.5 Flash-Lite:** Verified users receive 30 daily requests through a secure serverless proxy.
   - **Puter.js SDK:** Client-side integration using your personal Puter account for quota-free flexibility.
   - **Instant Undo:** Polished text can be reverted with one click via toast notification action.
 - **4. Dual PDF Export Options:**
@@ -124,7 +124,7 @@ flowchart LR
     B --> E[AI Polish Request]
     E --> F{Engine Selection}
     F -->|Default| G[Vercel /api/polish Proxy]
-    G --> H[Gemini 2.5 Flash]
+    G --> H[Gemini 3.5 Flash-Lite]
     F -->|BYO Account| I[Puter.js SDK]
     
     H --> J[Polished Text with Undo]
@@ -147,7 +147,7 @@ flowchart LR
 ```
 resume-builder---ai-polish-4-/
 ├── api/
-│   └── polish.js                 # Vercel serverless proxy (Gemini 2.5 + Firestore rate limiting)
+│   └── polish.js                 # Vercel serverless proxy (Gemini 3.5 Flash-Lite + Firestore rate limiting)
 ├── public/
 │   └── landing-preview.png       # Preview screenshot for documentation & social cards
 ├── src/
@@ -233,7 +233,7 @@ The project uses both client-side (`VITE_*`) and server-side environment variabl
 | Variable | Scope | Description |
 | :--- | :--- | :--- |
 | `GEMINI_API_KEY` | Serverless (`/api/polish`) | Google Gemini API key for server-side AI polishing |
-| `GEMINI_MODEL` | Serverless / Vite | Model code (Defaults to `gemini-2.5-flash`) |
+| `GEMINI_MODEL` | Serverless / Vite | Model code (Defaults to `gemini-3.5-flash-lite`) |
 | `VITE_FIREBASE_API_KEY` | Client-side (Vite) | Firebase Web API Key |
 | `VITE_FIREBASE_AUTH_DOMAIN` | Client-side (Vite) | Firebase Authentication domain |
 | `VITE_FIREBASE_PROJECT_ID` | Client-side (Vite) | Firebase Project ID |

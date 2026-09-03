@@ -117,9 +117,9 @@
   <text x="455" y="267" text-anchor="middle" class="text-title" fill="#C084FC">AI Polish Request</text>
   <text x="455" y="285" text-anchor="middle" class="text-sub">Summary &amp; Experience</text>
 
-  <!-- Engine: Gemini 2.5 Flash Proxy -->
+  <!-- Engine: Gemini 3.5 Flash-Lite Proxy -->
   <rect x="610" y="215" width="180" height="50" rx="8" class="card-bg" />
-  <text x="700" y="237" text-anchor="middle" class="text-title" fill="#C084FC">Gemini 2.5 Flash</text>
+  <text x="700" y="237" text-anchor="middle" class="text-title" fill="#C084FC">Gemini 3.5 Flash-Lite</text>
   <text x="700" y="254" text-anchor="middle" class="text-sub">Serverless Proxy (30/day rate)</text>
 
   <!-- Engine: Puter.js SDK -->
