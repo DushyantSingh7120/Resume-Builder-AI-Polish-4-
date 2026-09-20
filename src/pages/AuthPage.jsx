@@ -44,8 +44,14 @@ export default function AuthPage({ isSignUp = false, currentUser = null, isAuthL
         return
       }
       let message = 'Google sign-in failed. Please try again.'
-      if (err.code === 'auth/network-request-failed') {
+      if (err.code === 'auth/unauthorized-domain') {
+        message = 'Domain not authorized. Please add this domain in Firebase Console -> Authentication -> Settings -> Authorized domains.'
+      } else if (err.code === 'auth/popup-blocked') {
+        message = 'The sign-in popup was blocked by your browser. Please allow popups for this site.'
+      } else if (err.code === 'auth/network-request-failed') {
         message = 'Network error. Please check your internet connection.'
+      } else if (err.message && !err.message.includes('Firebase:')) {
+        message = err.message
       }
       setErrorMsg(message)
       toast.error(message)
